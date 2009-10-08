@@ -5,6 +5,10 @@
 * 摘	要：初始化认证参数
 * 作	者：HustMoon@BYHH
 */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "inireader.h"
 #include "myconfig.h"
 
@@ -18,16 +22,17 @@ static int openPcap();	/* 初始化pcap、设置过滤器 */
 void initConfig(int argc, char **argv)
 {
 	FILE_NAMES files = {"", "", 0};
-	
+
 	printf("\n欢迎使用MentoHUST\t版本: %s\n"
 			"Copyright (C) 2009 HustMoon Studio\n"
-			"人到华中大，有甜亦有辣。明德厚学地，求是创新家。\n\n", APP_VERSION);
+			"人到华中大，有甜亦有辣。明德厚学地，求是创新家。\n"
+			"Bug report to %s\n\n", APP_VERSION,PACKAGE_BUGREPORT);
 	readFile(&files);
 	readArg(argc, argv, &files);
 	setData(&files, &dataPacket);
 	if (userName[0]=='\0' || password[0]=='\0')
 	{
-		logEvent("!! 用户名、密码不得为空! 使用参数-?可查看详细参数规则。\n");
+		logEvent("!! 用户名、密码不要为空嘛! 使用参数-?可查看详细参数规则。\n");
 		doExit(-1);
 	}
 	if (nic[0]=='\0' && getAdapter()==-1)	/* 找不到（第一块）网卡？ */
