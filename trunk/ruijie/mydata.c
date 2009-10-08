@@ -5,10 +5,15 @@
 * 摘	要：认证需要用到的数据
 * 作	者：HustMoon@BYHH
 */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "mydata.h"
 #include "mystate.h"
 
-const char *APP_VERSION = "0.2.1";
+const char *APP_VERSION = VERSION ;
+
 const char *CFG_FILE = "/etc/mentohust/mentohust.conf";
 /* const char *LOCK_FILE = "/var/run/mentohust.pid"; */
 
