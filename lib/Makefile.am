@@ -1,5 +1,5 @@
 
-noinst_LIBRARIES = libconfig.a
+noinst_LIBRARIES = libcommon.a
 
-libconfig_a_SOURCES = inireader.c inireader.h
+libcommon_a_SOURCES = inireader.c inireader.h
 

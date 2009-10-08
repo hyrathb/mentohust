@@ -34,6 +34,6 @@ AC_TYPE_SIZE_T
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset socket])
 
-AC_CONFIG_FILES([Makefile lib/Makefile cernet/Makefile other/Makefile
+AC_CONFIG_FILES([Makefile lib/Makefile cernet/Makefile 
                  ruijie/Makefile])
 AC_OUTPUT
