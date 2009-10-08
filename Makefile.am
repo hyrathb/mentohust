@@ -1,5 +1,5 @@
 
 
-SUBDIRS = other ruijie cernet
+SUBDIRS = lib other ruijie cernet
 
 

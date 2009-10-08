@@ -76,6 +76,8 @@ int switchState(int type)
 		state = ID_DISCONNECT;	/* switchState(ID_DISCONNECT); */
 		return switchState(ID_START);
 	}
+
+
 	switch (type)
 	{
 	case ID_START:
