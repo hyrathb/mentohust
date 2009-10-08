@@ -1,0 +1,5 @@
+
+
+SUBDIRS = other ruijie cernet
+
+
