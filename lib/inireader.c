@@ -2,18 +2,25 @@
 * Copyright (C) 2009, HustMoon Studio
 *
 * 文件名称：inireader.c
-* 摘	要：读取ini文件
+* 摘	要：读取ini文件+写入ini文件
 * 作	者：HustMoon@BYHH
+* 修	改：2009.10.8
 */
 #include "inireader.h"
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+
+#define NOT_COMMENT(c)	(c!=';' && c!='#')	/* 不是注释行 */
 
 #ifndef strnicmp
 #define strnicmp strncasecmp
 #endif
-/*int strnicmp(const char *str1, const char *str2, size_t count);*/
+
 static void getLine(const char *buf, int inStart, int *lineStart, int *lineEnd);
 static int findKey(const char *buf, const char *section, const char *key,
-	int *sectionEnd, int *valueStart, unsigned long *valueSize);
+	int *sectionStart, int *valueStart, unsigned long *valueSize);
+static int getSection(const char *buf, int inStart);
 
 char *loadFile(const char *fileName)
 {
@@ -21,8 +28,7 @@ char *loadFile(const char *fileName)
 	long size = 0;
 	char *buf = NULL;
 	assert(fileName != NULL);
-	fp = fopen(fileName, "rb");
-	if (fp == NULL)
+	if ((fp=fopen(fileName, "rb")) == NULL)
 		return NULL;
 	fseek(fp, 0, SEEK_END);
 	size = ftell(fp);
@@ -38,27 +44,6 @@ char *loadFile(const char *fileName)
 	return buf;
 }
 
-/*int strnicmp(const char *str1, const char *str2, size_t count)
-{
-	int a1, a2;
-	size_t i;
-
-	assert(str1 != NULL);
-	assert(str2 != NULL);
-	assert(count > 0);
-
-	for (i=0; i<count && str1[i]!='\0' && str2[i]!='\0'; i++)
-	{
-		a1 = toupper(str1[i]);
-		a2 = toupper(str2[i]);
-		if (a1 != a2)
-			return (a1 < a2) ? -1 : 1;
-	}
-	a1 = strlen(str1);
-	a2 = strlen(str2);
-	return (i==count || a1==a2) ? 0 : ((a1 < a2) ? -1 : 1);
-}*/
-
 static void getLine(const char *buf, int inStart, int *lineStart, int *lineEnd)
 {
 	int start, end;
@@ -69,21 +54,25 @@ static void getLine(const char *buf, int inStart, int *lineStart, int *lineEnd)
 }
 
 static int findKey(const char *buf, const char *section, const char *key,
-	int *sectionEnd, int *valueStart, unsigned long *valueSize)	/* 参数sectionEnd,valueStart是为扩展写入ini功能预留的 */
+	int *sectionStart, int *valueStart, unsigned long *valueSize)
 {
 	int lineStart, lineEnd, i;
-	for (*sectionEnd=-1, lineEnd=0; buf[lineEnd]!='\0';)
+	for (*sectionStart=-1, lineEnd=0; buf[lineEnd]!='\0'; )
 	{
 		getLine(buf, lineEnd, &lineStart, &lineEnd);
 		if (buf[lineStart] == '[')
 		{
 			for (i=++lineStart; i<lineEnd && buf[i]!=']'; i++);
 			if (i<lineEnd && strnicmp(buf+lineStart, section, i-lineStart)==0)	/* 找到Section？ */
-				*sectionEnd = lineEnd;
-			else if (*sectionEnd != -1)	/* 找到Section但未找到Key */
+			{
+				*sectionStart = lineStart-1;
+				if (key == NULL)
+					return -1;
+			}
+			else if (*sectionStart != -1)	/* 找到Section但未找到Key */
 				return -1;
 		}
-		else if (*sectionEnd!=-1 && NOT_COMMENT(buf[lineStart]))	/* 找到Section且该行不是注释 */
+		else if (*sectionStart!=-1 && NOT_COMMENT(buf[lineStart]))	/* 找到Section且该行不是注释 */
 		{
 			for (i=lineStart+1; i<lineEnd && buf[i]!='='; i++);
 			if (i<lineEnd && strnicmp(buf+lineStart, key, i-lineStart)==0)	/* 找到Key？ */
@@ -100,7 +89,7 @@ static int findKey(const char *buf, const char *section, const char *key,
 int getString(const char *buf, const char *section, const char *key,
 	const char *defaultValue, char *value, unsigned long size)
 {
-	int sectionEnd, valueStart;
+	int sectionStart, valueStart;
 	unsigned long valueSize;
 
 	assert(section != NULL && strlen(section) > 0);
@@ -110,7 +99,7 @@ int getString(const char *buf, const char *section, const char *key,
 	assert(size > 0);
 	assert(buf != NULL);
 
-	if (findKey(buf, section, key, &sectionEnd, &valueStart, &valueSize)!=0 || valueSize==0)	/* 未找到？ */
+	if (findKey(buf, section, key, &sectionStart, &valueStart, &valueSize)!=0 || valueSize==0)	/* 未找到？ */
 	{
 		strncpy(value, defaultValue, size);
 		return -1;
@@ -129,4 +118,100 @@ int getInt(const char *buf, const char *section, const char *key, int defaultVal
 	if (value[0] == '\0')	/* 找不到或找到但为空？ */
 		return defaultValue;
 	return atoi(value);
+}
+
+void setString(char **buf, const char *section, const char *key, const char *value)
+{
+	int sectionStart, valueStart;
+	unsigned long valueSize;
+	char *newBuf = NULL;
+
+	assert(*buf != NULL);
+	assert(section != NULL && strlen(section) > 0);
+
+	if (findKey(*buf, section, key, &sectionStart, &valueStart, &valueSize) == 0)	/* 找到key */
+	{
+		if (value == NULL)	/* 删除key? */
+			memmove(*buf+valueStart-strlen(key)-1, *buf+valueStart+valueSize, 
+				strlen(*buf)+1-valueStart-valueSize);
+		else	/* 修改key */
+		{
+			newBuf = (char *)malloc(strlen(*buf)-valueSize+strlen(value)+1);
+			memcpy(newBuf, *buf, valueStart);
+			strcpy(newBuf+valueStart, value);
+			strcpy(newBuf+valueStart+strlen(value), *buf+valueStart+valueSize);
+			free(*buf);
+			*buf = newBuf;
+		}
+	}
+	else if (sectionStart != -1)	/* 找到section，找不到key */
+	{
+		if (key == NULL)	/* 删除section? */
+		{
+			valueStart = getSection(*buf, sectionStart+3);
+			if (valueStart <= sectionStart)	/* 后面没有section */
+				(*buf)[sectionStart] = '\0';
+			else
+				memmove(*buf+sectionStart, *buf+valueStart, strlen(*buf)+1-valueStart);
+		}
+		else if (value != NULL)	/* 不是要删除key */
+		{
+			newBuf = (char *)malloc(strlen(*buf)+strlen(key)+strlen(value)+4);
+			valueSize = sectionStart+strlen(section)+2;
+			memcpy(newBuf, *buf, valueSize);
+			sprintf(newBuf+valueSize, "\n%s=%s", key, value);
+			strcpy(newBuf+strlen(newBuf), *buf+valueSize);
+			free(*buf);
+			*buf = newBuf;
+		}
+	}
+	else	/* 找不到section? */
+	{
+		if (key!=NULL && value!=NULL)
+		{
+			newBuf = (char *)malloc(strlen(*buf)+strlen(section)+strlen(key)+strlen(value)+8);
+			strcpy(newBuf, *buf);
+			sprintf(newBuf+strlen(newBuf), "\n[%s]\n%s=%s", section, key, value);
+			free(*buf);
+			*buf = newBuf;
+		}
+	}
+}
+
+static int getSection(const char *buf, int inStart)
+{
+	int lineStart, lineEnd, i;
+	for (lineEnd=inStart; buf[lineEnd]!='\0'; )
+	{
+		getLine(buf, lineEnd, &lineStart, &lineEnd);
+		if (buf[lineStart] == '[')
+		{
+			for (i=lineStart+1; i<lineEnd && buf[i]!=']'; i++);
+			if (i < lineEnd)
+				return lineStart;
+		}
+	}
+	return -1;
+}
+
+void setInt(char **buf, const char *section, const char *key, int value)
+{
+	char svalue[21];
+	sprintf(svalue, "%d", value);
+	setString(buf, section, key, svalue);
+}
+
+int saveFile(const char *buf, const char *fileName)
+{
+	FILE *fp;
+	int result;
+	
+	assert(buf != NULL);
+	assert(fileName != NULL);
+	
+	if ((fp=fopen(fileName, "wb")) == NULL)
+		return -1;
+	result = fwrite(buf, strlen(buf), 1, fp);
+	fclose(fp);
+	return result;
 }
