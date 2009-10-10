@@ -8,7 +8,7 @@ AM_INIT_AUTOMAKE
 
 AC_PROG_RANLIB
 
-AC_CONFIG_SRCDIR([cernet/myconfig.h])
+AC_CONFIG_SRCDIR([src/myconfig.h])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
@@ -34,6 +34,5 @@ AC_TYPE_SIZE_T
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset socket])
 
-AC_CONFIG_FILES([Makefile lib/Makefile cernet/Makefile 
-                 ruijie/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile ])
 AC_OUTPUT

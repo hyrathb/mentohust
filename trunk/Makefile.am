@@ -1,5 +1,5 @@
 
 
-SUBDIRS = lib ruijie cernet
+SUBDIRS = src
 
 
