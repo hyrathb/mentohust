@@ -5,13 +5,20 @@
 * 摘	要：MentoHUST主函数
 * 作	者：HustMoon@BYHH
 */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "myconfig.h"
 #include "mystate.h"
 #include "myfunc.h"
 #include <pcap.h>
 #include <signal.h>
 #include <string.h>
+
+#ifdef HAVE_ICONV_H
 #include <iconv.h>
+#endif
 
 extern pcap_t *hPcap;
 extern volatile int state;
@@ -135,6 +142,7 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 
 static char *gbk2utf(char *src, size_t srclen)
 {
+#ifdef  HAVE_ICONV_H
 	/* GBK一汉字俩字节，UTF-8一汉字3字节，二者ASCII字符均一字节
 		 所以这样申请是足够的了，要记得释放 */
 	size_t dstlen = srclen * 3 / 2 + 1;
@@ -155,6 +163,10 @@ static char *gbk2utf(char *src, size_t srclen)
 	}
 	dst[dstlen-left] = '\0';
 	return dst;
+#else
+	return src;
+#endif
+
 }
 
 static void showRuijieMsg(const u_char *buf, unsigned bufLen)

@@ -1,5 +1,7 @@
 
 bin_PROGRAMS = MentoHUST
+
+EXTRA_DIST = mentohust.conf
  
 MentoHUST_SOURCES = mentohust.c myconfig.c mystate.c myfunc.c md5.c myini.c
 MentoHUST_SOURCES +=  myini.h myconfig.h md5.h myfunc.h mystate.h
