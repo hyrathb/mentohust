@@ -24,7 +24,6 @@
 #define D_STARTMODE			0	/* 默认组播模式 */
 #define D_DHCPMODE			0	/* 默认DHCP模式 */
 
-static const char *BUGREPORT = "http://mentohust.googlecode.com/";
 static const char *D_DHCPSCRIPT = "dhclient";	/* 默认DHCP脚本 */
 static const char *CFG_FILE = "/etc/mentohust.conf";	/* 配置文件 */
 /* const char *LOCK_FILE = "/var/run/mentohust.pid"; */
@@ -62,7 +61,7 @@ void initConfig(int argc, char **argv)
 	printf("\n欢迎使用MentoHUST\t版本: %s\n"
 			"Copyright (C) 2009 HustMoon Studio\n"
 			"人到华中大，有甜亦有辣。明德厚学地，求是创新家。\n"
-			"Bug report to %s\n\n", VERSION, BUGREPORT);
+			"Bug report to %s\n\n", VERSION, PACKAGE_BUGREPORT);
 	saveFlag = (readFile()==0 ? 0 : 1);
 	readArg(argc, argv, &saveFlag);
 	if (nic[0] == '\0')
