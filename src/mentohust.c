@@ -7,6 +7,8 @@
 */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
+#else
+#define HAVE_ICONV_H
 #endif
 
 #include "myconfig.h"
@@ -15,6 +17,7 @@
 #include <pcap.h>
 #include <signal.h>
 #include <string.h>
+#include <netinet/in.h>
 
 #ifdef HAVE_ICONV_H
 #include <iconv.h>
@@ -162,11 +165,12 @@ static char *gbk2utf(char *src, size_t srclen)
 		return NULL;
 	}
 	dst[dstlen-left] = '\0';
-	return dst;
 #else
-	return src;
+	char *dst = (char *)malloc(srclen+1);
+	memcpy(dst, src, srclen);
+	dst[srclen] = '\0';
 #endif
-
+	return dst;
 }
 
 static void showRuijieMsg(const u_char *buf, unsigned bufLen)

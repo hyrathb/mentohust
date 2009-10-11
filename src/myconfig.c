@@ -7,6 +7,9 @@
 */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
+#else
+static const char *VERSION = "0.2.2";
+static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issues/list";
 #endif
 
 #include "myconfig.h"
@@ -14,6 +17,7 @@
 #include "myfunc.h"
 #include <pcap.h>
 #include <string.h>
+#include <arpa/inet.h>
 
 #define ACCOUNT_SIZE		65	/* 用户名密码长度*/
 #define NIC_SIZE			60	/* 网卡名最大长度 */
