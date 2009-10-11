@@ -9,6 +9,7 @@
 #include "myfunc.h"
 #include <pcap.h>
 #include <string.h>
+#include <netinet/in.h>
 
 #define MAX_SEND_COUNT		3	/* 最大超时次数 */
 
