@@ -149,14 +149,14 @@ static int getAddress()
 			ip = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
 	}
 
-	if (ioctl(sock, SIOCGIFNETMASK, &ifr) < 0)
-		printf("!! 在网卡%s上获取子网掩码失败!\n", nic);
-	else
-		mask = ((struct sockaddr_in *)&ifr.ifr_netmask)->sin_addr.s_addr;
+	if (dhcpMode!=0 || mask==0)
+	{
+		if (ioctl(sock, SIOCGIFNETMASK, &ifr) < 0)
+			printf("!! 在网卡%s上获取子网掩码失败!\n", nic);
+		else
+			mask = ((struct sockaddr_in *)&ifr.ifr_netmask)->sin_addr.s_addr;
+	}
 	close(sock);
-
-	if (startMode%3==2 && gateway==0)	/* 赛尔且未填写网关地址 */
-		gateway = (ip & 0x00FFFFFF) | 0x02000000;	/* 据说赛尔的网关是ip前三字节，后一字节是2 */
 
 	printf("** 本机MAC:\t%s\n", formatHex(localMAC, 6));
 	printf("** 使用IP:\t%s\n", formatIP(ip));
