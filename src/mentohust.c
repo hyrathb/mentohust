@@ -18,6 +18,7 @@
 #include <signal.h>
 #include <string.h>
 #include <netinet/in.h>
+#include <unistd.h>
 
 #ifdef HAVE_ICONV_H
 #include <iconv.h>
@@ -30,6 +31,7 @@ extern const u_char *capBuf;
 extern unsigned startMode;
 extern unsigned dhcpMode;
 extern u_char destMAC[];
+extern int lockfd;
 
 static void exit_handle(void);	/* 退出回调 */
 static void sig_handle(int sig);	/* 信号回调 */
@@ -54,7 +56,7 @@ int main(int argc, char **argv)
 		switchState(ID_START);	/* 开始认证 */
 	if (-1 == pcap_loop(hPcap, -1, pcap_handle, NULL)) /* 开始捕获数据包 */
 		printf("!! 捕获数据包失败，请检查网络连接!\n");
-	exit(-1);
+	exit(EXIT_FAILURE);
 }
 
 static void exit_handle(void)
@@ -65,6 +67,8 @@ static void exit_handle(void)
 		pcap_close(hPcap);
 	if (fillBuf != NULL)
 		free(fillBuf);
+	if (lockfd > -1)
+		close(lockfd);
 	printf(">> 认证已退出。\n");
 }
 
@@ -76,13 +80,13 @@ static void sig_handle(int sig)
 		{
 			pcap_breakloop(hPcap);
 			printf("!! 发送数据包失败, 请检查网络连接!\n");
-			exit(-1);
+			exit(EXIT_FAILURE);
 		}
 	}
 	else	/* 退出 */
 	{
 		pcap_breakloop(hPcap);
-		exit(0);
+		exit(EXIT_SUCCESS);
 	}
 }
 

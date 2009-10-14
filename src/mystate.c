@@ -118,7 +118,7 @@ static int renewIP()
 	printf(">> 操作结束。\n");
 	dhcpMode += 3; /* 标记为已获取，123变为456，5不需再认证*/
 	if (fillHeader() == -1)
-		exit(-1);
+		exit(EXIT_FAILURE);
 	if (dhcpMode == 5)
 		return switchState(ID_ECHO);
 	return switchState(ID_START);
