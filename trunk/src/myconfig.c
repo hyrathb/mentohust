@@ -8,7 +8,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #else
-static const char *VERSION = "0.2.3";
+static const char *VERSION = "0.2.4";
 static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issues/list";
 #endif
 
@@ -31,6 +31,7 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 #define D_RESTARTWAIT		15	/* 默认重连间隔 */
 #define D_STARTMODE			0	/* 默认组播模式 */
 #define D_DHCPMODE			0	/* 默认DHCP模式 */
+#define D_DAEMONMODDE		0	/* 默认daemon模式 */
 
 static const char *D_DHCPSCRIPT = "dhclient";	/* 默认DHCP脚本 */
 static const char *CFG_FILE = "/etc/mentohust.conf";	/* 配置文件 */
@@ -57,27 +58,28 @@ unsigned dhcpMode = D_DHCPMODE;	/* DHCP模式 */
 pcap_t *hPcap = NULL;	/* Pcap句柄 */
 int lockfd = -1;	/* 锁文件描述符 */
 
-static int readFile();	/* 读取配置文件来初始化 */
-static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag);	/* 读取命令行参数来初始化 */
+static int readFile(int *daemonMode);	/* 读取配置文件来初始化 */
+static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *daemonMode);	/* 读取命令行参数来初始化 */
 static void showHelp(const char *fileName);	/* 显示帮助信息 */
 static int getAdapter();	/* 查找网卡名 */
 static void printConfig();	/* 显示初始化后的认证参数 */
 static int openPcap();	/* 初始化pcap、设置过滤器 */
 static void saveConfig();	/* 保存参数 */
-static void checkRunning(int exitFlag);	/* 检测是否已运行 */
+static void checkRunning(int exitFlag, int daemonMode);	/* 检测是否已运行 */
 
 void initConfig(int argc, char **argv)
 {
 	int saveFlag = 0;	/* 是否需要保存参数 */
 	int exitFlag = 0;	/* 是否需要退出 */
+	int daemonMode = D_DAEMONMODDE;	/* 是否后台运行 */
 
 	printf("\n欢迎使用MentoHUST\t版本: %s\n"
 			"Copyright (C) 2009 HustMoon Studio\n"
 			"人到华中大，有甜亦有辣。明德厚学地，求是创新家。\n"
 			"Bug report to %s\n\n", VERSION, PACKAGE_BUGREPORT);
-	saveFlag = (readFile()==0 ? 0 : 1);
-	readArg(argc, argv, &saveFlag, &exitFlag);
-	checkRunning(exitFlag);
+	saveFlag = (readFile(&daemonMode)==0 ? 0 : 1);
+	readArg(argc, argv, &saveFlag, &exitFlag, &daemonMode);
+	checkRunning(exitFlag, daemonMode);
 	if (nic[0] == '\0')
 	{
 		saveFlag = 1;
@@ -107,7 +109,7 @@ void initConfig(int argc, char **argv)
 		saveConfig();
 }
 
-static int readFile()
+static int readFile(int *daemonMode)
 {
 	char tmp[16];
 	char *buf = loadFile(CFG_FILE);
@@ -131,11 +133,12 @@ static int readFile()
 	restartWait = getInt(buf, "MentoHUST", "RestartWait", D_RESTARTWAIT) % 100;
 	startMode = getInt(buf, "MentoHUST", "StartMode", D_STARTMODE) % 3;
 	dhcpMode = getInt(buf, "MentoHUST", "DhcpMode", D_DHCPMODE) % 4;
+	*daemonMode = getInt(buf, "MentoHUST", "DaemonMode", D_DHCPMODE) % 4;
 	free(buf);
 	return 0;
 }
 
-static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag)
+static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *daemonMode)
 {
 	char *str, c;
 	int i;
@@ -184,6 +187,8 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag)
 				startMode = atoi(str+2) % 3;
 			else if (c=='D' || c=='d')
 				dhcpMode = atoi(str+2) % 4;
+			else if (c=='B' || c=='b')
+				*daemonMode = atoi(str+2) % 2;
 		}
 	}
 }
@@ -193,7 +198,7 @@ static void showHelp(const char *fileName)
 	char *helpString =
 		"用法:\t%s [-选项][参数]\n"
 		"选项:\t-H 显示本帮助信息\n"
-		 "\t-K 退出程序\n" 
+		"\t-K 退出程序\n"
 		"\t-W 保存参数到配置文件\n"
 		"\t-U 用户名\n"
 		"\t-P 密码\n"
@@ -209,9 +214,10 @@ static void showHelp(const char *fileName)
 	helpString =
 		"\t-A 组播地址: 0(标准) 1(锐捷) 2(赛尔) [默认0]\n"
 		"\t-D DHCP方式: 0(不使用) 1(二次认证) 2(认证后) 3(认证前) [默认0]\n"
+		"\t-B 是否后台运行: 0(否) 1(是) ［默认0］\n"
 		"\t-F 自定义数据文件[默认不使用]\n"
 		"\t-C DHCP脚本[默认dhclient]\n"
-		"例如:\t%s -Uusername -Ppassword -Neth0 -I192.168.0.1 -M255.255.255.0 -G0.0.0.0 -S0.0.0.0 -T8 -E30 -R15 -A0 -D1 -Fdefault.mpf -Cdhclient\n"
+		"例如:\t%s -Uusername -Ppassword -Neth0 -I192.168.0.1 -M255.255.255.0 -G0.0.0.0 -S0.0.0.0 -T8 -E30 -R15 -A0 -D1 －B0 -Fdefault.mpf -Cdhclient\n"
 		"使用时请确保是以root权限运行！\n\n";
 	printf(helpString, fileName);
 	exit(EXIT_SUCCESS);
@@ -330,7 +336,7 @@ static void saveConfig()
 	free(buf);
 }
 
-static void checkRunning(int exitFlag)	/* 这里是参考zRuijie，谁让我是Linux门外汉呢？ */
+static void checkRunning(int exitFlag, int daemonMode)	/* 这里是参考zRuijie，谁让我是Linux门外汉呢？ */
 {
 	struct flock fl;
 	lockfd = open (LOCK_FILE, O_RDWR|O_CREAT, LOCKMODE);
@@ -359,6 +365,11 @@ static void checkRunning(int exitFlag)	/* 这里是参考zRuijie，谁让我是L
 	if (fl.l_type != F_UNLCK) {
 		printf("!! MentoHUST已经运行(PID=%d)!\n", fl.l_pid);
 		exit(EXIT_FAILURE);
+	}
+	if (daemonMode) {
+		printf(">> 进入后台运行模式，使用参数-k可退出认证。\n");
+		if (daemon(0, 0))
+			perror("!! 后台运行失败");
 	}
 	fl.l_type = F_WRLCK;
 	fl.l_pid = getpid();
