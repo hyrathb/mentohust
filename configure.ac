@@ -1,7 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT([mentohust], [0.2.3], [http://code.google.com/p/mentohust/issues/list])
+AC_PREREQ([2.63])
+AC_INIT([mentohust], [0.2.4], [http://code.google.com/p/mentohust/issues/list])
 
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/myconfig.h])
@@ -19,10 +20,9 @@ AC_ARG_ENABLE(debug,
                 [  --enable-debug Enable DEBUG output. This is a debugging feature
         which should not be only enabled by develpoers
                 ],
-                [ CFLAGS="$CFLAGS -g2 -O0 -DDEBUG -Wall"],
-                [ CFLAGS="$CFLAGS -Os"]
+                [ CFLAGS="-g2 -O0 -DDEBUG -Wall"],
+                [ CFLAGS="-Os -Wall"]
               )
-              
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lpcap':
@@ -38,8 +38,6 @@ AC_TYPE_UINT32_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([atexit memmove memset socket])
-
-
 
 AC_CONFIG_FILES([Makefile src/Makefile ])
 AC_OUTPUT
