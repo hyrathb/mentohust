@@ -64,7 +64,7 @@ static void showHelp(const char *fileName);	/* 显示帮助信息 */
 static int getAdapter();	/* 查找网卡名 */
 static void printConfig();	/* 显示初始化后的认证参数 */
 static int openPcap();	/* 初始化pcap、设置过滤器 */
-static void saveConfig();	/* 保存参数 */
+static void saveConfig(int daemonMode);	/* 保存参数 */
 static void checkRunning(int exitFlag, int daemonMode);	/* 检测是否已运行 */
 
 void initConfig(int argc, char **argv)
@@ -106,7 +106,7 @@ void initConfig(int argc, char **argv)
 	if (fillHeader()==-1 || openPcap()==-1)	/* 获取IP、MAC，打开网卡 */
 		exit(EXIT_FAILURE);
 	if (saveFlag)
-		saveConfig();
+		saveConfig(daemonMode);
 }
 
 static int readFile(int *daemonMode)
@@ -133,7 +133,7 @@ static int readFile(int *daemonMode)
 	restartWait = getInt(buf, "MentoHUST", "RestartWait", D_RESTARTWAIT) % 100;
 	startMode = getInt(buf, "MentoHUST", "StartMode", D_STARTMODE) % 3;
 	dhcpMode = getInt(buf, "MentoHUST", "DhcpMode", D_DHCPMODE) % 4;
-	*daemonMode = getInt(buf, "MentoHUST", "DaemonMode", D_DHCPMODE) % 4;
+	*daemonMode = getInt(buf, "MentoHUST", "DaemonMode", D_DAEMONMODDE) % 2;
 	free(buf);
 	return 0;
 }
@@ -307,7 +307,7 @@ static int openPcap()
 	return 0;
 }
 
-static void saveConfig()
+static void saveConfig(int daemonMode)
 {
 	char *buf = loadFile(CFG_FILE);
 	if (buf == NULL)
@@ -317,6 +317,7 @@ static void saveConfig()
 	}
 	setString(&buf, "MentoHUST", "DhcpScript", dhcpScript);
 	setString(&buf, "MentoHUST", "DataFile", dataFile);
+	setInt(&buf, "MentoHUST", "DaemonMode", daemonMode);
 	setInt(&buf, "MentoHUST", "DhcpMode", dhcpMode);
 	setInt(&buf, "MentoHUST", "StartMode", startMode);
 	setInt(&buf, "MentoHUST", "RestartWait", restartWait);
