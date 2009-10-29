@@ -1,0 +1,13 @@
+Source: mentohust
+Section: net
+Priority: optional
+Maintainer: Cheese Lee <cheeselee@126.com>
+Build-Depends: debhelper (>= 7), autotools-dev, libpcap0.8-dev
+Standards-Version: 3.8.3
+Homepage: http://code.google.com/p/mentohust/
+
+Package: mentohust
+Architecture: any
+Depends:  libc6 (>= 2.7), libpcap0.8
+Description: A Ruijie client from <author>
+ A Ruijie client from <author>

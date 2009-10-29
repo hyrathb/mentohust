@@ -1,0 +1,28 @@
+This package was debianized by Cheese Lee <cheeselee@126.com> on
+Tue, 27 Oct 2009 19:44:51 +0800.
+
+It was downloaded from http://code.google.com/p/mentohust/downloads/list
+
+Upstream Author(s):
+
+    <author> <email>
+
+Copyright:
+
+    This software is Copyright (c) 2009 by <author>.
+
+License:
+
+    You are free to distribute this software under the terms of the GNU General
+    Public License, version 3.
+
+    Full text of the GNU GPL can on Debian systems be found in the
+    `/usr/share/common-licenses/GPL-3' file.
+
+
+The Debian packaging is:
+
+    Copyright (C) 2009 Cheese Lee <cheeselee@126.com>
+
+and is licensed under the GPL version 3, 
+see `/usr/share/common-licenses/GPL-3'.
