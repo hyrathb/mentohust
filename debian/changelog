@@ -1,0 +1,11 @@
+mentohust (0.2.4-0~ppa2) karmic; urgency=low
+
+  * Depend on libpcap0.8 without version
+
+ -- Cheese Lee <cheeselee@126.com>  Thu, 29 Oct 2009 16:24:20 +0800
+
+mentohust (0.2.4-0~ppa1) karmic; urgency=low
+
+  * Initial release
+
+ -- Cheese Lee <cheeselee@126.com>  Tue, 27 Oct 2009 19:44:51 +0800
