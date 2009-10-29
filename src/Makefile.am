@@ -1,10 +1,10 @@
 
-bin_PROGRAMS = MentoHUST
+bin_PROGRAMS = mentohust
 
 EXTRA_DIST = mentohust.conf
  
-MentoHUST_SOURCES = mentohust.c myconfig.c mystate.c myfunc.c md5.c myini.c
-MentoHUST_SOURCES +=  myini.h myconfig.h md5.h myfunc.h mystate.h
+mentohust_SOURCES = mentohust.c myconfig.c mystate.c myfunc.c md5.c myini.c
+mentohust_SOURCES +=  myini.h myconfig.h md5.h myfunc.h mystate.h
 
 #MentoHUST_DEPENDENCIES = $(top_builddir)/lib/libconfig.a
 
