@@ -20,8 +20,8 @@ AC_ARG_ENABLE(debug,
                 [  --enable-debug Enable DEBUG output. This is a debugging feature
         which should not be only enabled by develpoers
                 ],
-                [ CFLAGS="-g2 -O0 -DDEBUG -Wall"],
-                [ CFLAGS="-Os -Wall"]
+                [ CFLAGS="$CFLAGS -g2 -O0 -DDEBUG -Wall"],
+                [ CFLAGS="$CFLAGS -Os -Wall"]
               )
 
 # Checks for libraries.
