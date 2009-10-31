@@ -64,6 +64,7 @@ install: build
 
 	# Add here commands to install the package into debian/mentohust.
 	$(MAKE) DESTDIR=$(CURDIR)/debian/mentohust install
+	mv $(CURDIR)/debian/mentohust/usr/sbin/MentoHUST $(CURDIR)/debian/mentohust/usr/sbin/mentohust
 
 # Build architecture-independent files here.
 binary-indep: install
@@ -73,7 +74,7 @@ binary-indep: install
 binary-arch: install
 	dh_testdir
 	dh_testroot
-	dh_installchangelogs ChangeLog
+	dh_installchangelogs # ChangeLog
 	dh_installdocs
 #	dh_installexamples
 	dh_install

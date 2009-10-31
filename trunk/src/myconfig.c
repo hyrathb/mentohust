@@ -31,7 +31,7 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 #define D_RESTARTWAIT		15	/* 默认重连间隔 */
 #define D_STARTMODE			0	/* 默认组播模式 */
 #define D_DHCPMODE			0	/* 默认DHCP模式 */
-#define D_DAEMONMODDE		0	/* 默认daemon模式 */
+#define D_DAEMONMODE		0	/* 默认daemon模式 */
 
 static const char *D_DHCPSCRIPT = "dhclient";	/* 默认DHCP脚本 */
 static const char *CFG_FILE = "/etc/mentohust.conf";	/* 配置文件 */
@@ -71,7 +71,7 @@ void initConfig(int argc, char **argv)
 {
 	int saveFlag = 0;	/* 是否需要保存参数 */
 	int exitFlag = 0;	/* 是否需要退出 */
-	int daemonMode = D_DAEMONMODDE;	/* 是否后台运行 */
+	int daemonMode = D_DAEMONMODE;	/* 是否后台运行 */
 
 	printf("\n欢迎使用MentoHUST\t版本: %s\n"
 			"Copyright (C) 2009 HustMoon Studio\n"
@@ -133,7 +133,7 @@ static int readFile(int *daemonMode)
 	restartWait = getInt(buf, "MentoHUST", "RestartWait", D_RESTARTWAIT) % 100;
 	startMode = getInt(buf, "MentoHUST", "StartMode", D_STARTMODE) % 3;
 	dhcpMode = getInt(buf, "MentoHUST", "DhcpMode", D_DHCPMODE) % 4;
-	*daemonMode = getInt(buf, "MentoHUST", "DaemonMode", D_DAEMONMODDE) % 2;
+	*daemonMode = getInt(buf, "MentoHUST", "DaemonMode", D_DAEMONMODE) % 2;
 	free(buf);
 	return 0;
 }
