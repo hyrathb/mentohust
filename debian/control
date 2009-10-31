@@ -9,5 +9,5 @@ Homepage: http://code.google.com/p/mentohust/
 Package: mentohust
 Architecture: any
 Depends:  libc6 (>= 2.7), libpcap0.8
-Description: A Ruijie client from <author>
- A Ruijie client from <author>
+Description: A Ruijie client from HustMoon Studio
+ See /usr/share/doc/mentohust/README.
