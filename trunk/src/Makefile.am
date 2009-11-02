@@ -11,4 +11,4 @@ mentohust_SOURCES +=  myini.h myconfig.h md5.h myfunc.h mystate.h
 #MentoHUST_LDADD = -lcommon
 #MentoHUST_LDFLAGS =  -L$(top_builddir)/lib
 
-#MentoHUST_CFLAGS = -I$(top_srcdir)/lib
+MentoHUST_CFLAGS = $(INCLUDES)
