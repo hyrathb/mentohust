@@ -16,6 +16,8 @@ AM_PROG_CC_C_O
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 
+AC_SUBST_FILE(INCLUDES)
+
 AC_ARG_ENABLE(debug,
                 [  --enable-debug Enable DEBUG output. This is a debugging feature
         which should not be only enabled by develpoers
@@ -30,6 +32,9 @@ AC_CHECK_LIB([pcap], [main])
 
 # Checks for header files.
 AC_CHECK_HEADERS([iconv.h arpa/inet.h fcntl.h netinet/in.h stdint.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
+
+AC_CHECK_HEADER([pcapd.h],[],[AC_SUBST(INCLUDES,-I'$(top_builddir)'/other)])
+
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T

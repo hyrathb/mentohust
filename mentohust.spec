@@ -28,7 +28,8 @@ make %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
-
+make install_conf DESTDIR=$RPM_BUILD_ROOT
+chmod +s $RPM_BUILD_ROOT/usr/bin/mentohust
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -36,6 +37,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 %{_prefix}/bin/mentohust
+/etc/mentohust.conf
+%{_prefix}/share/doc/mentohust/README
 %doc
 
 %changelog
