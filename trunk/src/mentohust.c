@@ -190,6 +190,7 @@ static void showRuijieMsg(const u_char *buf, unsigned bufLen)
 		{
 			printf("$$ 系统提示:\t%s\n", serverMsg);
 			free(serverMsg);
+			fflush(stdout);
 		}
 	}
 	if ((length=0x1c+buf[0x1b]+0x69+39) < bufLen)
@@ -204,6 +205,7 @@ static void showRuijieMsg(const u_char *buf, unsigned bufLen)
 		{
 			printf("$$ 计费信息:\t%s\n", serverMsg);
 			free(serverMsg);
+			fflush(stdout);
 		}
 	}
 }
@@ -218,6 +220,7 @@ static void showCernetMsg(const u_char *buf)
 	{
 		printf("$$ 系统提示:\t%s\n", serverMsg);
 		free(serverMsg);
+		fflush(stdout);
 	}
 }
 

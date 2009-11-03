@@ -17,6 +17,8 @@
 #include <net/if_dl.h>
 #include <ifaddrs.h>
 #endif
+#include <sys/poll.h>
+#include <netinet/ip_icmp.h>
 
 const u_char STANDARD_ADDR[] = {0x01,0x80,0xC2,0x00,0x00,0x03};
 const u_char RUIJIE_ADDR[] = {0x01,0xD0,0xF8,0x00,0x00,0x03};
@@ -29,7 +31,7 @@ unsigned fillSize = 0;	/* 填充包大小 */
 extern char password[];
 extern char nic[];
 extern char dataFile[];
-extern u_int32_t ip, mask, gateway, dns;
+extern u_int32_t ip, mask, gateway, dns, pingHost;
 extern u_char localMAC[], destMAC[];
 extern unsigned startMode, dhcpMode;
 
@@ -40,6 +42,7 @@ static void checkSum(u_char *buf);	/* 锐捷算法，计算两个字节的检验
 static int setProperty(u_char type, const u_char *value, int length);	/* 设置指定属性 */
 static int readPacket(int type);	/* 读取数据 */
 static int V2Check(const u_char *md5Seed);	/* V2校验算法 */
+/*static u_short checksum(void *buffer, int size);	 用于ping */
 
 char *formatIP(u_int32_t ip)
 {
@@ -70,7 +73,7 @@ static void showFileError()
 
 void newBuffer()
 {
-	u_char buf[16];
+	u_char Buf[16], *buf=Buf;
 	FILE *fp = NULL;
 	if ((fp=fopen(dataFile, "rb")) == NULL)
 		goto fileError;
@@ -380,9 +383,8 @@ fileError:
 void fillEchoPacket(u_char *echoBuf)
 {
 	int i;
-	u_char bt1[4], bt2[4];
-	*(u_int32_t *)bt1 = htonl(echoKey + echoNo);
-	*(u_int32_t *)bt2 = htonl(echoNo);
+	u_int32_t dd1=htonl(echoKey + echoNo), dd2=htonl(echoNo);
+	u_char *bt1=(u_char *)&dd1, *bt2=(u_char *)&dd2;
 	echoNo++;
 	for (i=0; i<4; i++)
 	{
@@ -424,4 +426,63 @@ void fillCernetAddr(u_char *buf)
 	memcpy(buf+0x1C, &mask, 4);
 	memcpy(buf+0x20, &gateway, 4);
 	memset(buf+0x24, 0, 4);	/* memcpy(buf+0x24, &dns, 4); */
+}
+
+/*static u_short checksum(void *buffer, int size)
+{
+	unsigned long cksum = 0;
+	u_short *buf = (u_short *)buffer;
+	while (size > 1) {
+		cksum += *buf++;
+		size -= sizeof(u_short);
+	}
+	if (size)
+		cksum += *(u_char *)buf;
+	cksum = (cksum >> 16) + (cksum & 0xffff);
+	cksum += (cksum >> 16);
+	return (u_short)(~cksum);
+}*/
+
+int isOnline()	/* 参考了ruijieclient */
+{
+	u_char echoPacket[] =
+	{
+		0x08,0x00,0x61,0xb2,0x02,0x00,0x01,0x00,0x57,0x65,0x6C,0x63,0x6F,0x6D,0x65,0x20,
+		0x74,0x6F,0x20,0x4D,0x65,0x6E,0x74,0x6F,0x48,0x55,0x53,0x54,0x21,0x0A,0x43,0x6F,
+		0x70,0x79,0x72,0x69,0x67,0x68,0x74,0x20,0x28,0x63,0x29,0x20,0x32,0x30,0x30,0x39,
+		0x20,0x48,0x75,0x73,0x74,0x4D,0x6F,0x6F,0x6E,0x20,0x53,0x74,0x75,0x64,0x69,0x6F
+	};
+	int sock=-1, rtVal, t;
+	struct pollfd pfd;
+	struct sockaddr_in dest;
+	if (pingHost == 0)
+		return 0;
+	memset(&dest, 0, sizeof(dest));
+	dest.sin_family = AF_INET;
+	dest.sin_addr.s_addr = pingHost;
+	if ((sock=socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) < 0)
+		goto pingError;
+	pfd.fd = sock;
+	pfd.events = POLLIN;
+	for (t=1; t<=3; t++) {
+		if (sendto(sock, echoPacket, sizeof(echoPacket), 0,
+				(struct sockaddr *)&dest, sizeof(dest)) < 0)
+			goto pingError;
+		rtVal = poll(&pfd, 1, t*1000);
+		if (rtVal == -1)
+			goto pingError;
+		if (rtVal > 0) {
+			close(sock);
+			return 0;
+		}
+	}
+	close(sock);
+	return -1;
+
+pingError:
+	perror("!! Ping主机出错，关闭该功能");
+	if (sock != -1)
+		close(sock);
+	pingHost = 0;
+	return 0;
 }
