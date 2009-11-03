@@ -18,7 +18,7 @@ const u_char *capBuf = NULL;	/* 抓到的包 */
 static u_char sendPacket[0x3E8];	/* 用来发送的包 */
 static int sendCount = 0;	/* 同一阶段发包计数 */
 
-extern const u_char STANDARD_ADDR[], RUIJIE_ADDR[];
+extern const u_char STANDARD_ADDR[];
 extern char userName[];
 extern unsigned startMode;
 extern unsigned dhcpMode;
@@ -31,6 +31,7 @@ extern char dhcpScript[];
 extern pcap_t *hPcap;
 extern u_char *fillBuf;
 extern unsigned fillSize;
+extern u_int32_t pingHost;
 
 static void setTimer(unsigned interval);	/* 设置定时器 */
 static int renewIP();	/* 更新IP */
@@ -78,8 +79,7 @@ int switchState(int type)
 			printf(">> 等候响应包超时，自行响应!\n");
 			return switchState(ID_ECHO);
 		}
-		restart();
-		return 0;
+		return restart();
 	}
 	switch (type)
 	{
@@ -91,9 +91,16 @@ int switchState(int type)
 		return sendIdentityPacket();
 	case ID_CHALLENGE:
 		return sendChallengePacket();
-	case ID_WAITECHO:
+	case ID_WAITECHO:	/* 塞尔的就不ping了，不好计时 */
 		return waitEchoPacket();
 	case ID_ECHO:
+		if (pingHost && sendCount*echoInterval > 180) {	/* 3分钟左右 */
+			if (isOnline() == -1) {
+				printf(">> 认证掉线，开始重连!\n");
+				return switchState(ID_START);
+			}
+			sendCount = 1;
+		}
 		return sendEchoPacket();
 	case ID_DISCONNECT:
 		return sendLogoffPacket();
@@ -101,13 +108,14 @@ int switchState(int type)
 	return 0;
 }
 
-void restart()
+int restart()
 {
 	if (startMode >= 3)	/* 标记服务器地址为未获取 */
 		startMode -= 3;
 	state = ID_START;
 	sendCount = -1;
 	setTimer(restartWait);	/* restartWait秒后或者服务器请求后重启认证 */
+	return 0;
 }
 
 static int renewIP()

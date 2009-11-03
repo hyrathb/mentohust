@@ -8,7 +8,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #else
-static const char *VERSION = "0.2.4";
+static const char *VERSION = "0.2.5";
 static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issues/list";
 #endif
 
@@ -35,6 +35,7 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 
 static const char *D_DHCPSCRIPT = "dhclient";	/* 默认DHCP脚本 */
 static const char *CFG_FILE = "/etc/mentohust.conf";	/* 配置文件 */
+static const char *LOG_FILE = "/tmp/mentohust.log";	/* 日志文件 */
 static const char *LOCK_FILE = "/var/run/mentohust.pid";	/* 锁文件 */
 #define LOCKMODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)	/* 创建掩码 */
 
@@ -48,6 +49,7 @@ u_int32_t ip = 0;	/* 本机IP */
 u_int32_t mask = 0;	/* 子网掩码 */
 u_int32_t gateway = 0;	/* 网关 */
 u_int32_t dns = 0;	/* DNS */
+u_int32_t pingHost = 0;	/* ping */
 u_char localMAC[6];	/* 本机MAC */
 u_char destMAC[6];	/* 服务器MAC */
 unsigned timeout = D_TIMEOUT;	/* 超时间隔 */
@@ -79,7 +81,6 @@ void initConfig(int argc, char **argv)
 			"Bug report to %s\n\n", VERSION, PACKAGE_BUGREPORT);
 	saveFlag = (readFile(&daemonMode)==0 ? 0 : 1);
 	readArg(argc, argv, &saveFlag, &exitFlag, &daemonMode);
-	checkRunning(exitFlag, daemonMode);
 	if (nic[0] == '\0')
 	{
 		saveFlag = 1;
@@ -94,6 +95,7 @@ void initConfig(int argc, char **argv)
 		scanf("%s", password);
 		saveFlag = 1;
 	}
+	checkRunning(exitFlag, daemonMode);
 	if (startMode%3==2 && gateway==0)	/* 赛尔且未填写网关地址 */
 	{
 		gateway = ip;	/* 据说赛尔的网关是ip前三字节，后一字节是2 */
@@ -128,12 +130,14 @@ static int readFile(int *daemonMode)
 	gateway = inet_addr(tmp);
 	getString(buf, "MentoHUST", "DNS", "0.0.0.0", tmp, sizeof(tmp));
 	dns = inet_addr(tmp);
+	getString(buf, "MentoHUST", "PingHost", "0.0.0.0", tmp, sizeof(tmp));
+	pingHost = inet_addr(tmp);
 	timeout = getInt(buf, "MentoHUST", "Timeout", D_TIMEOUT) % 100;
 	echoInterval = getInt(buf, "MentoHUST", "EchoInterval", D_ECHOINTERVAL) % 1000;
 	restartWait = getInt(buf, "MentoHUST", "RestartWait", D_RESTARTWAIT) % 100;
 	startMode = getInt(buf, "MentoHUST", "StartMode", D_STARTMODE) % 3;
 	dhcpMode = getInt(buf, "MentoHUST", "DhcpMode", D_DHCPMODE) % 4;
-	*daemonMode = getInt(buf, "MentoHUST", "DaemonMode", D_DAEMONMODE) % 2;
+	*daemonMode = getInt(buf, "MentoHUST", "DaemonMode", D_DAEMONMODE) % 4;
 	free(buf);
 	return 0;
 }
@@ -177,6 +181,8 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 				gateway = inet_addr(str+2);
 			else if (c=='S' || c=='s')
 				dns = inet_addr(str+2);
+			else if (c=='O' || c=='o')
+				pingHost = inet_addr(str+2);
 			else if (c=='T' || c=='t')
 				timeout = atoi(str+2) % 100;
 			else if (c=='E' || c=='e')
@@ -188,7 +194,7 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 			else if (c=='D' || c=='d')
 				dhcpMode = atoi(str+2) % 4;
 			else if (c=='B' || c=='b')
-				*daemonMode = atoi(str+2) % 2;
+				*daemonMode = atoi(str+2) % 4;
 		}
 	}
 }
@@ -207,17 +213,18 @@ static void showHelp(const char *fileName)
 		"\t-M 子网掩码[默认本机掩码]\n"
 		"\t-G 网关[默认0.0.0.0]\n"
 		"\t-S DNS[默认0.0.0.0]\n"
+		"\t-O Ping主机[默认0.0.0.0，表示关闭该功能]\n"
 		"\t-T 认证超时(秒)[默认8]\n"
 		"\t-E 响应间隔(秒)[默认30]\n"
-		"\t-R 失败等待(秒)[默认15]\n";
+		"\t-R 失败等待(秒)[默认15]\n"
+		"\t-A 组播地址: 0(标准) 1(锐捷) 2(赛尔) [默认0]\n";
 	printf(helpString, fileName);
 	helpString =
-		"\t-A 组播地址: 0(标准) 1(锐捷) 2(赛尔) [默认0]\n"
 		"\t-D DHCP方式: 0(不使用) 1(二次认证) 2(认证后) 3(认证前) [默认0]\n"
-		"\t-B 是否后台运行: 0(否) 1(是) ［默认0］\n"
+		"\t-B 是否后台运行: 0(否) 1(是，关闭输出) 2(是，保留输出) 3(是，输出到文件) ［默认0］\n"
 		"\t-F 自定义数据文件[默认不使用]\n"
 		"\t-C DHCP脚本[默认dhclient]\n"
-		"例如:\t%s -Uusername -Ppassword -Neth0 -I192.168.0.1 -M255.255.255.0 -G0.0.0.0 -S0.0.0.0 -T8 -E30 -R15 -A0 -D1 －B0 -Fdefault.mpf -Cdhclient\n"
+		"例如:\t%s -Uusername -Ppassword -Neth0 -I192.168.0.1 -M255.255.255.0 -G0.0.0.0 -S0.0.0.0 -T8 -E30 -R15 -A0 -D1 -B0 -Fdefault.mpf -Cdhclient\n"
 		"使用时请确保是以root权限运行！\n\n";
 	printf(helpString, fileName);
 	exit(EXIT_SUCCESS);
@@ -274,6 +281,8 @@ static void printConfig()
 	printf("** 网卡:\t%s\n", nic);
 	printf("** 网关地址:\t%s\n", formatIP(gateway));
 	printf("** DNS地址:\t%s\n", formatIP(dns));
+	if (pingHost)
+		printf("** ping主机:\t%s\n", formatIP(pingHost));
 	printf("** 认证超时:\t%d秒\n", timeout);
 	printf("** 响应间隔:\t%d秒\n", echoInterval);
 	printf("** 失败等待:\t%d秒\n", restartWait);
@@ -289,7 +298,7 @@ static int openPcap()
 {
 	char buf[PCAP_ERRBUF_SIZE], *fmt;
 	struct bpf_program fcode;
-	if ((hPcap = pcap_open_live(nic, 65535, 1, 500, buf)) == NULL)
+	if ((hPcap = pcap_open_live(nic, 2048, 1, 500, buf)) == NULL)
 	{
 		printf("!! 打开网卡%s失败: %s\n", nic, buf);
 		return -1;
@@ -323,6 +332,7 @@ static void saveConfig(int daemonMode)
 	setInt(&buf, "MentoHUST", "RestartWait", restartWait);
 	setInt(&buf, "MentoHUST", "EchoInterval", echoInterval);
 	setInt(&buf, "MentoHUST", "Timeout", timeout);
+	setString(&buf, "MentoHUST", "PingHost", formatIP(pingHost));
 	setString(&buf, "MentoHUST", "DNS", formatIP(dns));
 	setString(&buf, "MentoHUST", "Gateway", formatIP(gateway));
 	setString(&buf, "MentoHUST", "Mask", formatIP(mask));
@@ -359,7 +369,7 @@ static void checkRunning(int exitFlag, int daemonMode)	/* 这里是参考zRuijie
 			if (kill(fl.l_pid, SIGINT) == -1)
 				perror("!! 结束进程失败");
 		}
-		else 
+		else
 			printf("!! 没有MentoHUST正在运行！\n");
 		exit(EXIT_SUCCESS);
 	}
@@ -367,10 +377,12 @@ static void checkRunning(int exitFlag, int daemonMode)	/* 这里是参考zRuijie
 		printf("!! MentoHUST已经运行(PID=%d)!\n", fl.l_pid);
 		exit(EXIT_FAILURE);
 	}
-	if (daemonMode) {
+	if (daemonMode) {	/* 貌似我过早进入后台模式了，就给个选项保留输出或者输出到文件吧 */
 		printf(">> 进入后台运行模式，使用参数-k可退出认证。\n");
-		if (daemon(0, 0))
+		if (daemon(0, (daemonMode+1)%2))
 			perror("!! 后台运行失败");
+		else if (daemonMode == 3)
+			stderr = stdout = fopen(LOG_FILE, "w");
 	}
 	fl.l_type = F_WRLCK;
 	fl.l_pid = getpid();
