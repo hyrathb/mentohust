@@ -1,8 +1,19 @@
 #使用方法（需要管理员权限），本使用方法修改自mystar，注意文件名区分大小写
 
-#修改数据包（可选，适用于有锐捷客户端版本要求的同学）
-下载“MentoHUSTTool“(MentoHUST数据包修改工具)和相应锐捷版本的MPF文件，按MentoHUSTTool中步骤操作。
+#修改数据包（可选，适用于有锐捷客户端版本要求的同学，如果不使用数据包认证失败则可以试试这个）
+下载“MentoHUSTTool“(MentoHUST数据包修改工具)和相应锐捷版本的MPF文件(http://lewuya.ys168.com/)，按MentoHUSTTool中步骤操作。
 
+#安装mentohust（建议Ubuntu用户使用Deb包安装，Fedora用户使用RPM包安装）
+安装好后打开终端，输入mentohust -h，将显示帮助信息，然后按照帮助信息设置命令行参数回车运行即可。
+例如sudo mentohust -uusername -ppassword -neth0 -d0 -w
+表示用户名为username，密码为password，网卡为eth0，不使用动态IP，同时将参数保存到/etc/mentohust.conf，以便以后不用输入这么多参数。其余参数请自行按照这种格式设置。
+如何退出:不以后台模式运行mentohust时，按Ctrl+C或者关闭终端即可退出；后台运行时使用sudo mentohust -k退出认证。
+
+如果提示缺少libpcap.so.0.x而在/usr/lib/目录下已存在一个libpcap.so.0.y，可用
+sudo ln -s /usr/lib/libpcap.so.0.y /usr/lib/libpcap.so.0.x
+命令做个软连接后再试试，否则请自己安装相应libpcap。
+
+以下操作适用于不用安装包安装mentohust的用户
 #设置数据包（可选，适用于有锐捷客户端版本要求的同学）
 假设数据包文件名为“版本.mpf”
 sudo mkdir /etc/mentohust
@@ -26,27 +37,12 @@ sudo chmod +s /bin/MentoHUST
 KDE4桌面可在“系统设置”->“高级”->"自动启动"中添加程序。填入/bin/MentoHUST即可
 Gnome桌面可以在“系统”->“会话“->“自动启动”中添加程序。
 
-#后台运行
-在命令行结尾加&后运行程序，可关闭终端，程序在后台继续运行。
-若想将输出结果重定向到文件：
-MentoHUST >file 把stdout重定向到file文件中
-MentoHUST 1>file1 把stdout重定向到file1
-
-#依赖项(一般只要有/usr/lib/libpcap.so就可以编译)
-#32位环境下编译时依赖于
-linux-gate.so.1
-libpcap.so.0.9 => /usr/lib/libpcap.so.0.9 #使用libpcap动态库编译时依赖此项
-libc.so.6 => /lib/libc.so.6
-/lib/ld-linux.so.2
-#64位环境下编译时依赖于
-linux-vdso.so.1
-libpcap.so.0.8 => /usr/lib/libpcap.so.0.8
-libc.so.6 => /lib/libc.so.6
-/lib64/ld-linux-x86-64.so.2
-
 #权责声明
 1、本程序所有涉及锐捷赛尔认证的功能均是来自前辈公开代码及抓包分析。
 2、本程序于个人仅供学习，于他人仅供方便认证，不得使用本程序有意妨害锐捷赛尔认证机制及相关方利益。
 3、一切使用后果由用户自己承担。
 4、本程序不提供任何服务及保障，编写及维护纯属个人爱好，随时可能被终止。
 5、使用本程序者，即表示同意该声明。谢谢合作。
+
+源码可在项目主页获取：http://mentohust.googlecode.com/
+联系作者：在http://mentohust.googlecode.com/留言或Email：mentohust@ehust.co.cc

@@ -1,7 +1,7 @@
 
 bin_PROGRAMS = mentohust
 
-EXTRA_DIST = mentohust.conf
+EXTRA_DIST = mentohust.conf ../other/pcap.h ../other/pcap-bpf.h
  
 mentohust_SOURCES = mentohust.c myconfig.c mystate.c myfunc.c md5.c myini.c
 mentohust_SOURCES +=  myini.h myconfig.h md5.h myfunc.h mystate.h
@@ -11,4 +11,3 @@ mentohust_SOURCES +=  myini.h myconfig.h md5.h myfunc.h mystate.h
 #MentoHUST_LDADD = -lcommon
 #MentoHUST_LDFLAGS =  -L$(top_builddir)/lib
 
-MentoHUST_CFLAGS = $(INCLUDES)

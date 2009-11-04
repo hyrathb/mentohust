@@ -224,7 +224,7 @@ static void showHelp(const char *fileName)
 		"\t-B 是否后台运行: 0(否) 1(是，关闭输出) 2(是，保留输出) 3(是，输出到文件) ［默认0］\n"
 		"\t-F 自定义数据文件[默认不使用]\n"
 		"\t-C DHCP脚本[默认dhclient]\n"
-		"例如:\t%s -Uusername -Ppassword -Neth0 -I192.168.0.1 -M255.255.255.0 -G0.0.0.0 -S0.0.0.0 -T8 -E30 -R15 -A0 -D1 -B0 -Fdefault.mpf -Cdhclient\n"
+		"例如:\t%s -Uusername -Ppassword -Neth0 -I192.168.0.1 -M255.255.255.0 -G0.0.0.0 -S0.0.0.0 -O0.0.0.0 -T8 -E30 -R15 -A0 -D1 -B0 -Fdefault.mpf -Cdhclient\n"
 		"使用时请确保是以root权限运行！\n\n";
 	printf(helpString, fileName);
 	exit(EXIT_SUCCESS);
