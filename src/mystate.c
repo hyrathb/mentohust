@@ -94,7 +94,7 @@ int switchState(int type)
 	case ID_WAITECHO:	/* 塞尔的就不ping了，不好计时 */
 		return waitEchoPacket();
 	case ID_ECHO:
-		if (pingHost && sendCount*echoInterval > 180) {	/* 3分钟左右 */
+		if (pingHost && sendCount*echoInterval > 60) {	/* 1分钟左右 */
 			if (isOnline() == -1) {
 				printf(">> 认证掉线，开始重连!\n");
 				return switchState(ID_START);
