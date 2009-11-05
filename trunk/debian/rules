@@ -31,7 +31,7 @@ endif
 ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 	cp -f /usr/share/misc/config.guess config.guess
 endif
-	./configure $(CROSS) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info CFLAGS="$(CFLAGS)" --bindir=\$${prefix}/sbin LDFLAGS="-Wl,-z,defs"
+	./configure $(CROSS) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
 
 
 build: build-stamp
@@ -64,7 +64,6 @@ install: build
 
 	# Add here commands to install the package into debian/mentohust.
 	$(MAKE) DESTDIR=$(CURDIR)/debian/mentohust install
-	mv $(CURDIR)/debian/mentohust/usr/sbin/MentoHUST $(CURDIR)/debian/mentohust/usr/sbin/mentohust
 
 # Build architecture-independent files here.
 binary-indep: install
