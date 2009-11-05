@@ -1,8 +1,15 @@
+mentohust (0.2.5-0~r1) karmic; urgency=low
+
+  * New upstream release
+  * Moved the executable from /usr/sbin/ to /usr/bin/
+
+ -- Cheese Lee <cheeselee@126.com>  Wed, 04 Nov 2009 16:07:18 +0800
+
 mentohust (0.2.4-0~r3) karmic; urgency=low
 
   * Changed versioning suffix
   * Purged some empty files
-  * Renames the executable to lowercases
+  * Renamed the executable to lowercases
 
  -- Cheese Lee <cheeselee@126.com>  Fri, 30 Oct 2009 10:50:03 +0800
 
