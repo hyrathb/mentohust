@@ -10,8 +10,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <net/if.h>
+#include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <net/if.h>
 #include <arpa/inet.h>
 #ifndef SIOCGIFHWADDR	/* BSD、MacOS */
 #include <net/if_dl.h>
@@ -156,7 +157,7 @@ static int getAddress()
 		if (ioctl(sock, SIOCGIFNETMASK, &ifr) < 0)
 			printf("!! 在网卡%s上获取子网掩码失败!\n", nic);
 		else
-			mask = ((struct sockaddr_in *)&ifr.ifr_netmask)->sin_addr.s_addr;
+			mask = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
 	}
 	close(sock);
 

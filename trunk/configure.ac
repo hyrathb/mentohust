@@ -27,6 +27,7 @@ AC_PROG_MAKE_SET
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lpcap':
 AC_CHECK_LIB([pcap], [main])
+AC_CHECK_LIB([iconv], [main])
 
 # Checks for header files.
 AC_CHECK_HEADERS([iconv.h arpa/inet.h fcntl.h netinet/in.h stdint.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
