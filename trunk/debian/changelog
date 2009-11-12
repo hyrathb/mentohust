@@ -1,3 +1,10 @@
+mentohust (0.3.0-1) unstable; urgency=low
+
+  * Load libpcap dynamicly.
+  * Add optional flag to show notification.
+
+ -- HustMoon <mentohust@ehust.co.cc>  Thu, 12 Nov 2009 11:14:23 +0800
+
 mentohust (0.2.5-0~r1) karmic; urgency=low
 
   * New upstream release
