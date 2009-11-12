@@ -8,10 +8,6 @@ Homepage: http://code.google.com/p/mentohust/
 
 Package: mentohust
 Architecture: any
-Depends: libpcap0.8 (>= 0.8)
-Description: A Ruijie and Cernet supplicant from HustMoon Studio
- A supplicant for Ruijie and Cernet on Linux and MacOS.
- See /usr/share/doc/mentohust/README.
-Description-zh_CN: 锐捷、赛尔认证客户端(From HustMoon Studio)
- 一个Linux和MacOS上的锐捷、赛尔认证客户端。
- 详见/usr/share/doc/mentohust/README.
+Depends: libc6 (>= 2.7), libpcap0.8 | libpcap0.9 | libpcap1.0 | libpcap1.1
+Description: A Ruijie and Cernet supplicant on Linux and MacOS from HustMoon Studio
+ See /usr/share/doc/mentohust/README for more information.

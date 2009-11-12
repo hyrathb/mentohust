@@ -1,5 +1,5 @@
-This package was debianized by HustMoon <mentohust@ehust.co.cc> on
-Thu, 12 Nov 2009 11:14:23 +0800.
+This package was debianized by HustMoon <hustmoon@unknown> on
+Thu, 12 Nov 2009 14:42:15 +0800.
 
 It was downloaded from http://code.google.com/p/mentohust/downloads/list
 
@@ -9,20 +9,21 @@ Upstream Author(s):
 
 Copyright:
 
-    This software is Copyright (c) 2009 by HustMoon Studio.
+    Copyright (C) 2009 HustMoon Studio
 
 License:
 
-    You are free to distribute this software under the terms of the GNU General
-    Public License, version 3.
+    This package is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3.
 
-    Full text of the GNU GPL can on Debian systems be found in the
-    `/usr/share/common-licenses/GPL-3' file.
-
+    On Debian systems, the complete text of the GNU General Public License
+    can be found in `/usr/share/common-licenses/GPL-3'.
 
 The Debian packaging is:
 
+    Copyright (C) 2009 Cheese Lee <cheeselee@126.com>
     Copyright (C) 2009 HustMoon <mentohust@ehust.co.cc>
 
 and is licensed under the GPL version 3, 
 see `/usr/share/common-licenses/GPL-3'.
+
