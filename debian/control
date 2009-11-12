@@ -1,13 +1,17 @@
 Source: mentohust
 Section: net
 Priority: optional
-Maintainer: Cheese Lee <cheeselee@126.com>
-Build-Depends: debhelper (>= 7), autotools-dev, libpcap0.8-dev
-Standards-Version: 3.8.3
+Maintainer: HustMoon <mentohust@ehust.co.cc>
+Build-Depends: debhelper (>= 7), autotools-dev
+Standards-Version: 3.8.1
 Homepage: http://code.google.com/p/mentohust/
 
 Package: mentohust
 Architecture: any
-Depends:  libc6 (>= 2.7), libpcap0.8
-Description: A Ruijie client from HustMoon Studio
+Depends: libpcap0.8 (>= 0.8)
+Description: A Ruijie and Cernet supplicant from HustMoon Studio
+ A supplicant for Ruijie and Cernet on Linux and MacOS.
  See /usr/share/doc/mentohust/README.
+Description-zh_CN: 锐捷、赛尔认证客户端(From HustMoon Studio)
+ 一个Linux和MacOS上的锐捷、赛尔认证客户端。
+ 详见/usr/share/doc/mentohust/README.

@@ -4,10 +4,11 @@
 * 文件名称：mystate.c
 * 摘	要：改变认证状态
 * 作	者：HustMoon@BYHH
+* 邮	箱：www.ehust@gmail.com
 */
 #include "mystate.h"
 #include "myfunc.h"
-#include <pcap.h>
+#include "dlfunc.h"
 #include <string.h>
 #include <netinet/in.h>
 

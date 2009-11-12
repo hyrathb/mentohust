@@ -4,6 +4,7 @@
 * 文件名称：mentohust.c
 * 摘	要：MentoHUST主函数
 * 作	者：HustMoon@BYHH
+* 邮	箱：www.ehust@gmail.com
 */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -14,7 +15,7 @@
 #include "myconfig.h"
 #include "mystate.h"
 #include "myfunc.h"
-#include <pcap.h>
+#include "dlfunc.h"
 #include <signal.h>
 #include <string.h>
 #include <netinet/in.h>
@@ -30,6 +31,9 @@ extern u_char *fillBuf;
 extern const u_char *capBuf;
 extern unsigned startMode;
 extern unsigned dhcpMode;
+#ifndef NONOTIFY
+extern int showNotify;
+#endif
 extern u_char destMAC[];
 extern int lockfd;
 
@@ -54,8 +58,13 @@ int main(int argc, char **argv)
 		switchState(ID_DHCP);
 	else
 		switchState(ID_START);	/* 开始认证 */
-	if (-1 == pcap_loop(hPcap, -1, pcap_handle, NULL)) /* 开始捕获数据包 */
-		printf("!! 捕获数据包失败，请检查网络连接!\n");
+	if (-1 == pcap_loop(hPcap, -1, pcap_handle, NULL)) { /* 开始捕获数据包 */
+		printf("!! 捕获数据包失败，请检查网络连接！\n");
+#ifndef NONOTIFY
+		if (showNotify)
+			show_notify("MentoHUST - 错误提示", "捕获数据包失败，请检查网络连接！");
+#endif
+	}
 	exit(EXIT_FAILURE);
 }
 
@@ -69,6 +78,12 @@ static void exit_handle(void)
 		free(fillBuf);
 	if (lockfd > -1)
 		close(lockfd);
+#ifndef NONOTIFY
+	free_libnotify();
+#endif
+#ifndef NODLL
+	free_libpcap();
+#endif
 	printf(">> 认证已退出。\n");
 }
 
@@ -79,7 +94,11 @@ static void sig_handle(int sig)
 		if (-1 == switchState(state))
 		{
 			pcap_breakloop(hPcap);
-			printf("!! 发送数据包失败, 请检查网络连接!\n");
+			printf("!! 发送数据包失败, 请检查网络连接！\n");
+#ifndef NONOTIFY
+			if (showNotify)
+				show_notify("MentoHUST - 错误提示", "发送数据包失败, 请检查网络连接！");
+#endif
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -189,6 +208,10 @@ static void showRuijieMsg(const u_char *buf, unsigned bufLen)
 		if (length>0 && (serverMsg=gbk2utf(serverMsg, length))!=NULL)
 		{
 			printf("$$ 系统提示:\t%s\n", serverMsg);
+#ifndef NONOTIFY
+			if (showNotify)
+				show_notify("MentoHUST - 系统提示", serverMsg);
+#endif
 			free(serverMsg);
 			fflush(stdout);
 		}
@@ -204,6 +227,10 @@ static void showRuijieMsg(const u_char *buf, unsigned bufLen)
 		if (length>0 && (serverMsg=gbk2utf(serverMsg, length))!=NULL)
 		{
 			printf("$$ 计费信息:\t%s\n", serverMsg);
+#ifndef NONOTIFY
+			if (showNotify)
+				show_notify("MentoHUST - 计费信息", serverMsg);
+#endif
 			free(serverMsg);
 			fflush(stdout);
 		}
@@ -219,6 +246,10 @@ static void showCernetMsg(const u_char *buf)
 	if (length>0 && (serverMsg=gbk2utf(serverMsg, length))!=NULL)
 	{
 		printf("$$ 系统提示:\t%s\n", serverMsg);
+#ifndef NONOTIFY
+			if (showNotify)
+				show_notify("MentoHUST - 系统提示", serverMsg);
+#endif
 		free(serverMsg);
 		fflush(stdout);
 	}

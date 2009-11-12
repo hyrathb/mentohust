@@ -1,5 +1,5 @@
-This package was debianized by Cheese Lee <cheeselee@126.com> on
-Tue, 27 Oct 2009 19:44:51 +0800.
+This package was debianized by HustMoon <mentohust@ehust.co.cc> on
+Thu, 12 Nov 2009 11:14:23 +0800.
 
 It was downloaded from http://code.google.com/p/mentohust/downloads/list
 
@@ -22,7 +22,7 @@ License:
 
 The Debian packaging is:
 
-    Copyright (C) 2009 Cheese Lee <cheeselee@126.com>
+    Copyright (C) 2009 HustMoon <mentohust@ehust.co.cc>
 
 and is licensed under the GPL version 3, 
 see `/usr/share/common-licenses/GPL-3'.
