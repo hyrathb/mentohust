@@ -18,10 +18,10 @@ int (*pcap_compile)(pcap_t *, struct bpf_program *, const char *, int, bpf_u_int
 int (*pcap_setfilter)(pcap_t *, struct bpf_program *);
 char *(*pcap_geterr)(pcap_t *);
 void (*pcap_freecode)(struct bpf_program *);
-int (*pcap_loop)(pcap_t *, int, pcap_handler, u_char *);
+int (*pcap_loop)(pcap_t *, int, pcap_handler, unsigned char *);
 void (*pcap_close)(pcap_t *);
 void (*pcap_breakloop)(pcap_t *);
-int (*pcap_sendpacket)(pcap_t *, const u_char *, int);
+int (*pcap_sendpacket)(pcap_t *, const unsigned char *, int);
 
 static void *libpcap = NULL;
 
