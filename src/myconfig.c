@@ -25,7 +25,7 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 #include <sys/stat.h>
 
 #define ACCOUNT_SIZE		65	/* 用户名密码长度*/
-#define NIC_SIZE			60	/* 网卡名最大长度 */
+#define NIC_SIZE			16	/* 网卡名最大长度 */
 #define MAX_PATH			255	/* FILENAME_MAX */
 #define D_TIMEOUT			8	/* 默认超时间隔 */
 #define D_ECHOINTERVAL		30	/* 默认心跳间隔 */
