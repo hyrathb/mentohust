@@ -116,14 +116,14 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 	capBuf = buf;
 	if (buf[0x0F]==0x00 && buf[0x12]==0x01 && buf[0x16]==0x01)	/* 验证用户名 */
 	{
-		if (memcmp(buf+0x17, "User name", 9) == 0)	/* 塞尔 */
-			startMode = 5;
 		if (startMode < 3)
 		{
 			memcpy(destMAC, buf+6, 6);
 			printf("** 认证MAC:\t%s\n", formatHex(destMAC, 6));
 			startMode += 3;	/* 标记为已获取 */
 		}
+		if (startMode==3 && memcmp(buf+0x17, "User name", 9)==0)	/* 塞尔 */
+			startMode = 5;
 		switchState(ID_IDENTITY);
 	}
 	else if (buf[0x0F]==0x00 && buf[0x12]==0x01 && buf[0x16]==0x04)	/* 验证密码 */

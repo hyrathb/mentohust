@@ -10,8 +10,7 @@ AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_ARG_ENABLE(debug,
-                [  --enable-debug Enable DEBUG output. This is a debugging feature
-        which should not be only enabled by develpoers ],
+                [ AC_HELP_STRING([--enable-debug], [Enable DEBUG output. This is a debugging feature which should not be only enabled by develpoers]) ],
                 [ CFLAGS="$CFLAGS -g2 -O0 -DDEBUG -Wall" ],
                 [ CFLAGS="$CFLAGS -Os -Wall" ]
               )
@@ -26,15 +25,24 @@ AC_PROG_MAKE_SET
 # Checks for libraries.
 AC_CHECK_LIB([iconv], [iconv])
 AC_ARG_ENABLE(nodypcap,
-                [ --enable-nodypcap do not load libpcap.so dynamicly],
+                [ AC_HELP_STRING([--enable-nodypcap], [Don't load libpcap.so dynamicly]) ],
                 [
                   AC_CHECK_LIB([pcap], [pcap_sendpacket])
                   CFLAGS="$CFLAGS -DNODLL"
                 ],
-                [ AC_CHECK_LIB([dl], [dlsym]) ]
+                [
+	AC_ARG_WITH(stpcap,
+					[ AC_HELP_STRING([--with-stpcap], [Link with libpcap.a]) ],
+					[
+					  AC_SUBST(LDADD,'$(top_builddir)'/other/libpcap.a)
+					  CFLAGS="$CFLAGS -DNODLL"
+					],
+					[ AC_CHECK_LIB([dl], [dlsym]) ]
+				  )
+				]
               )
 AC_ARG_ENABLE(nonotify,
-                [ --enable-nonotify do not load libnotify.so dynamicly and do not show notify],
+                [ AC_HELP_STRING([--enable-nonotify], [Don't show notification]) ],
                 [ CFLAGS="$CFLAGS -DNONOTIFY" ],
                 [ AC_CHECK_LIB([dl], [dlsym]) ]
               )
