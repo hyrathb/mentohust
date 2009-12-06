@@ -6,26 +6,25 @@
  * 由于在编写MentoHUST for Linux之前，本人无任何gcc经验，所以在编写Linux版时参考了mystar的Makefile等文档。在代码上，MentoHUST for Linux主要是以Windows版的MentoHUST为参考，对于mystar并无多少借鉴。
 
 ==MentoHUST是否完全兼容锐捷？==
- * MentoHUST目前只支持锐捷的V2校验，所以如果某个学校开启了锐捷V3校验算法并且关闭了xrgsu的认证，只能说这个学校的学生悲剧了。
- * MentoHUST会努力做得更好，MentoHUST开发组新成员kkHAIKE正在着手解决V3算法，由于该算法比较变态，所以不要抱太大希望，以免希望越大失望越大。
+ * 在成员kkHAIKE的努力下，锐捷V3客户端校验算法已被解决，Linux版MentoHUST已基本完全兼容锐捷目前所有版本。
+ * 由于官方Windows版锐捷也在完善，所以基本不会对Windows版MentoHUST加入V3算法支持。
 
 ==MentoHUST for Linux如何使用？==
  * 请参考[http://wiki.ubuntu.org.cn/%E9%94%90%E6%8D%B7%E3%80%81%E8%B5%9B%E5%B0%94%E8%AE%A4%E8%AF%81MentoHUST 锐捷、赛尔认证MentoHUST]
 
 ==MentoHUST使用起来比其他客户端麻烦？==
  * 这是对于MentoHUST的误解。MentoHUST的默认发包是与xrgsu兼容的，一般没有开启客户端校验的学校都开放了xrgsu的认证，也就是说学校没有开启客户端校验的情况下，一般是可以无需配置mpf文件即可通过认证的，这时使用MentoHUST绝对不比官方的xrgsu麻烦。
- * MentoHUST的“自定义数据包”只是一个可选功能，用于应付关闭了xrgsu认证的情况，这种情况多发于学校开启了客户端校验。MentoHUST支持V2客户端校验（暂不支持V3，V3目前无人攻破），要实现这一功能就需要使用MentoHUSTTool抓包后配置来实现。
- * 有些学校虽然没开启客户端校验，但对于版本有特定要求，现有其他第三方锐捷客户端要兼容一个新版本，必须通过修改源代码来实现，这对于对代码不太熟悉的人来说并不是件轻松的事情，而使用MentoHUST的“自定义数据包”功能则可无需修改任何代码就实现这点。
- * 总之，MentoHUST的“自定义数据包”只是一个可选功能，其他客户端能认证的情况下MentoHUST基本上不使用这一功能也可认证，使得操作变麻烦的“自定义数据包”功能是为了实现其他客户端无法实现的功能。
+ * MentoHUST的“自定义数据文件”只是一个可选功能，用于不使用数据文件认证失败后，这种情况在0.3.3版以后很少发生。
+ * 有些学校虽然没开启客户端校验，但对于版本有特定要求，现有其他第三方锐捷客户端要兼容一个新版本，必须通过修改源代码来实现，这对于对代码不太熟悉的人来说并不是件轻松的事情，而使用MentoHUST的“自定义数据文件”功能则可无需修改任何代码就实现这点。
+ * 总之，MentoHUST的“自定义数据文件”只是一个可选功能，其他客户端能认证的情况下MentoHUST基本上不使用这一功能也可认证，使得操作变麻烦的“自定义数据文件”功能是为了更好兼容。
 
 ==我想装Linux，但又担心在Linux下不能通过锐捷认证，能否提前知道这点？==
- * 完全可以，MentoHUST可以说是目前对锐捷兼容性最好的客户端，如果使用MentoHUST无法认证成功，那么使用其他客户端也几乎不可能成功，也就是说可以把MentoHUST能否认证成功当做在Linux下能否通过锐捷认证的标准。而MentoHUST Windows 版V2.4与Linux版是兼容的，这样就可以先在Windows下测试是否可以。
+ * Linux版MentoHUST已完全兼容目前所有版本锐捷，所以请放心大胆的投入Linux的怀抱中来吧！
 
 ==MentoHUST能否移植到其他平台？==
- * MentoHUST V0.2.5版已成功在MacOS上编译，运行良好([http://bbs.whnet.edu.cn/cgi-bin/bbscon?board=NetResource&file=M.1230774282.A 下载])。最新版暂时无人编译。
- * 暂时无人尝试编译路由版本。
+ * MentoHUST V0.2.5版及0.3.0版已成功在MacOS上编译，运行良好([http://mentohust.googlecode.com/issues/attachment?aid=2121908789865846359&name=mentohust_mac.tar.gz 下载])。
 
 ==MentoHUST能否支持其他客户端的认证？==
  * MentoHUST还支持赛尔客户端的认证。
 
-_OMG，没想到我居然写了这么多，就这样吧。欢迎高手参与进来共同开发维护MentoHUST！2009.9.25 修改于2009.11.28_
+_OMG，没想到我居然写了这么多，就这样吧。欢迎高手参与进来共同开发维护MentoHUST！2009.9.25 修改于2009.12.6_
