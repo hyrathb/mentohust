@@ -9,7 +9,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #else
-static const char *VERSION = "0.3.0";
+static const char *VERSION = "0.3.1";
 static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issues/list";
 #endif
 
@@ -45,6 +45,7 @@ static const char *LOCK_FILE = "/var/run/mentohust.pid";	/* 锁文件 */
 int showNotify = D_SHOWNOTIFY;	/* 显示通知 */
 #endif
 
+extern int bufType;	/*0内置xrgsu 1内置Win 2仅文件 3文件+校验*/
 char userName[ACCOUNT_SIZE] = "";	/* 用户名 */
 char password[ACCOUNT_SIZE] = "";	/* 密码 */
 char nic[NIC_SIZE] = "";	/* 网卡名 */
@@ -116,11 +117,17 @@ void initConfig(int argc, char **argv)
 	}
 	if (userName[0]=='\0' || password[0]=='\0')	/* 未写用户名密码？ */
 	{
+		saveFlag = 1;
 		printf("?? 请输入用户名: ");
 		scanf("%s", userName);
 		printf("?? 请输入密码: ");
 		scanf("%s", password);
-		saveFlag = 1;
+		printf("?? 请选择组播地址(0标准 1锐捷私有 2赛尔): ");
+		scanf("%u", &startMode);
+		startMode %= 3;
+		printf("?? 请选择DHCP方式(0不使用 1二次认证 2认证后 3认证前): ");
+		scanf("%u", &dhcpMode);
+		dhcpMode %= 4;
 	}
 	checkRunning(exitFlag, daemonMode);
 	if (startMode%3==2 && gateway==0)	/* 赛尔且未填写网关地址 */
@@ -187,52 +194,49 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 		if (str[0]!='-' && str[0]!='/')
 			continue;
 		c = str[1];
-		if (c=='H' || c=='h' || c=='?')
+		if (c=='h' || c=='?' || strcmp(str, "--help")==0)
 			showHelp(argv[0]);
-		else if (c=='W' || c=='w')
+		else if (c == 'w')
 			*saveFlag = 1;
-		else if (c=='K' || c=='k')
-		{
+		else if (c == 'k') {
 			*exitFlag = 1;
 			return;
-		}
-		else if (strlen(str) > 2)
-		{
-			if (c=='U' || c=='u')
+		} else if (strlen(str) > 2) {
+			if (c == 'u')
 				strncpy(userName, str+2, sizeof(userName)-1);
-			else if (c=='P' || c=='p')
+			else if (c == 'p')
 				strncpy(password, str+2, sizeof(password)-1);
-			else if (c=='N' || c=='n')
+			else if (c == 'n')
 				strncpy(nic, str+2, sizeof(nic)-1);
-			else if (c=='F' || c=='f')
+			else if (c == 'f')
 				strncpy(dataFile, str+2, sizeof(dataFile)-1);
-			else if (c=='C' || c=='c')
+			else if (c == 'c')
 				strncpy(dhcpScript, str+2, sizeof(dhcpScript)-1);
-			else if (c=='I' || c=='i')
+			else if (c == 'i')
 				ip = inet_addr(str+2);
-			else if (c=='M' || c=='m')
+			else if (c == 'm')
 				mask = inet_addr(str+2);
-			else if (c=='G' || c=='g')
+			else if (c == 'g')
 				gateway = inet_addr(str+2);
-			else if (c=='S' || c=='s')
+			else if (c == 's')
 				dns = inet_addr(str+2);
-			else if (c=='O' || c=='o')
+			else if (c == 'o')
 				pingHost = inet_addr(str+2);
-			else if (c=='T' || c=='t')
+			else if (c == 't')
 				timeout = atoi(str+2) % 100;
-			else if (c=='E' || c=='e')
+			else if (c == 'e')
 				echoInterval = atoi(str+2) % 1000;
-			else if (c=='R' || c=='r')
+			else if (c == 'r')
 				restartWait = atoi(str+2) % 100;
-			else if (c=='A' || c=='a')
+			else if (c == 'a')
 				startMode = atoi(str+2) % 3;
-			else if (c=='D' || c=='d')
+			else if (c == 'd')
 				dhcpMode = atoi(str+2) % 4;
 #ifndef NONOTIFY
-			else if (c=='Y' || c=='y')
+			else if (c == 'y')
 				showNotify = atoi(str+2) % 21;
 #endif
-			else if (c=='B' || c=='b')
+			else if (c == 'b')
 				*daemonMode = atoi(str+2) % 4;
 		}
 	}
@@ -242,31 +246,31 @@ static void showHelp(const char *fileName)
 {
 	char *helpString =
 		"用法:\t%s [-选项][参数]\n"
-		"选项:\t-H 显示本帮助信息\n"
-		"\t-K 退出程序\n"
-		"\t-W 保存参数到配置文件\n"
-		"\t-U 用户名\n"
-		"\t-P 密码\n"
-		"\t-N 网卡名\n"
-		"\t-I IP[默认本机IP]\n"
-		"\t-M 子网掩码[默认本机掩码]\n"
-		"\t-G 网关[默认0.0.0.0]\n"
-		"\t-S DNS[默认0.0.0.0]\n"
-		"\t-O Ping主机[默认0.0.0.0，表示关闭该功能]\n"
-		"\t-T 认证超时(秒)[默认8]\n"
-		"\t-E 响应间隔(秒)[默认30]\n"
-		"\t-R 失败等待(秒)[默认15]\n"
-		"\t-A 组播地址: 0(标准) 1(锐捷) 2(赛尔) [默认0]\n";
+		"选项:\t-h 显示本帮助信息\n"
+		"\t-k 退出程序\n"
+		"\t-w 保存参数到配置文件\n"
+		"\t-u 用户名\n"
+		"\t-p 密码\n"
+		"\t-n 网卡名\n"
+		"\t-i IP[默认本机IP]\n"
+		"\t-m 子网掩码[默认本机掩码]\n"
+		"\t-g 网关[默认0.0.0.0]\n"
+		"\t-s DNS[默认0.0.0.0]\n"
+		"\t-o Ping主机[默认0.0.0.0，表示关闭该功能]\n"
+		"\t-t 认证超时(秒)[默认8]\n"
+		"\t-e 响应间隔(秒)[默认30]\n"
+		"\t-r 失败等待(秒)[默认15]\n"
+		"\t-a 组播地址: 0(标准) 1(锐捷) 2(赛尔) [默认0]\n";
 	printf(helpString, fileName);
 	helpString =
-		"\t-D DHCP方式: 0(不使用) 1(二次认证) 2(认证后) 3(认证前) [默认0]\n"
-		"\t-B 是否后台运行: 0(否) 1(是，关闭输出) 2(是，保留输出) 3(是，输出到文件) ［默认0］\n"
+		"\t-d DHCP方式: 0(不使用) 1(二次认证) 2(认证后) 3(认证前) [默认0]\n"
+		"\t-b 是否后台运行: 0(否) 1(是，关闭输出) 2(是，保留输出) 3(是，输出到文件) ［默认0］\n"
 #ifndef NONOTIFY
-		"\t-Y 是否显示通知: 0(否) 1～20(是)[默认5］\n"
+		"\t-y 是否显示通知: 0(否) 1～20(是)[默认5］\n"
 #endif
-		"\t-F 自定义数据文件[默认不使用]\n"
-		"\t-C DHCP脚本[默认dhclient]\n"
-		"例如:\t%s -Uusername -Ppassword -Neth0 -I192.168.0.1 -M255.255.255.0 -G0.0.0.0 -S0.0.0.0 -O0.0.0.0 -T8 -E30 -R15 -A0 -D1 -B0 -Fdefault.mpf -Cdhclient\n"
+		"\t-f 自定义数据文件[默认不使用]\n"
+		"\t-c DHCP脚本[默认dhclient]\n"
+		"例如:\t%s -uusername -ppassword -neth0 -i192.168.0.1 -m255.255.255.0 -g0.0.0.0 -s0.0.0.0 -o0.0.0.0 -t8 -e30 -r15 -a0 -d1 -b0 -fdefault.mpf -cdhclient\n"
 		"使用时请确保是以root权限运行！\n\n";
 	printf(helpString, fileName);
 	exit(EXIT_SUCCESS);
@@ -324,7 +328,7 @@ static void printConfig()
 	printf("** 网关地址:\t%s\n", formatIP(gateway));
 	printf("** DNS地址:\t%s\n", formatIP(dns));
 	if (pingHost)
-		printf("** ping主机:\t%s\n", formatIP(pingHost));
+		printf("** 智能重连:\t%s\n", formatIP(pingHost));
 	printf("** 认证超时:\t%d秒\n", timeout);
 	printf("** 响应间隔:\t%d秒\n", echoInterval);
 	printf("** 失败等待:\t%d秒\n", restartWait);
@@ -334,7 +338,7 @@ static void printConfig()
 	if (showNotify)
 		printf("** 通知超时:\t%d秒\n", showNotify);
 #endif
-	if (dataFile[0] != '\0')
+	if (bufType >= 2)
 		printf("** 数据文件:\t%s\n", dataFile);
 	if (dhcpMode != 0)
 		printf("** DHCP脚本:\t%s\n", dhcpScript);
