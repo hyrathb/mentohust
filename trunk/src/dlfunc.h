@@ -21,18 +21,17 @@
 #define PCAP_ERRBUF_SIZE	256
 #define PCAP_IF_LOOPBACK	0x00000001
 
-typedef unsigned int u_int;
-typedef u_int bpf_u_int32;
+typedef unsigned int bpf_u_int32;
 typedef void pcap_t;
 typedef struct pcap_if {
+	struct pcap_if *next;
 	char *name;
 	char *description;
 	void *addresses;
 	bpf_u_int32 flags;
-	struct pcap_if *next;
 }pcap_if_t;
 struct bpf_program {
-	u_int bf_len;
+	unsigned int bf_len;
 	void *bf_insns;
 };
 struct pcap_pkthdr {

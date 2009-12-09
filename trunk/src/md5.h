@@ -23,30 +23,21 @@ These notices must be retained in any copies of any part of this
 documentation and/or software.*/
 
 #ifndef MD5_H
-#define MD5_h
-#include <stdint.h>
-
-/* POINTER defines a generic pointer type */
-typedef unsigned char *POINTER;
-
-/* UINT2 defines a two byte word */
-typedef unsigned short int UINT2;
-
-/* UINT4 defines a four byte word */
-typedef uint32_t UINT4;
+#define MD5_H
+#include "types.h"
 
 /* MD5 context. */
 typedef struct
 {
   UINT4 state[4];								   /* state (ABCD) */
   UINT4 count[2];		/* number of bits, modulo 2^64 (lsb first) */
-  unsigned char buffer[64];						 /* input buffer */
+  UCHAR buffer[64];						 /* input buffer */
 } MD5_CTX;
 
 void MD5Init(MD5_CTX * context);
-void MD5Update(MD5_CTX *context, unsigned char *input, unsigned int inputLen);
-void MD5Final(unsigned char digest[16], MD5_CTX *context);
+void MD5Update(MD5_CTX *context, UCHAR *input, UINT4 inputLen);
+void MD5Final(UCHAR digest[16], MD5_CTX *context);
 
-unsigned char* ComputeHash(unsigned char *src,int len);
+UCHAR* ComputeHash(UCHAR *src, UINT4 len);
 
 #endif /* MD5_H */

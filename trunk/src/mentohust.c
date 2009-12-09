@@ -226,10 +226,10 @@ static void showRuijieMsg(const u_char *buf, unsigned bufLen)
 		for (; *serverMsg=='\r'||*serverMsg=='\n'; serverMsg++,length--);
 		if (length>0 && (serverMsg=gbk2utf(serverMsg, length))!=NULL)
 		{
-			printf("$$ 计费信息:\t%s\n", serverMsg);
+			printf("$$ 计费提示:\t%s\n", serverMsg);
 #ifndef NONOTIFY
 			if (showNotify)
-				show_notify("MentoHUST - 计费信息", serverMsg);
+				show_notify("MentoHUST - 计费提示", serverMsg);
 #endif
 			free(serverMsg);
 			fflush(stdout);
