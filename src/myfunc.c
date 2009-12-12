@@ -90,7 +90,8 @@ static int checkFile() {
 	return 0;
 
 fileError:
-	printf("!! 所选文件%s无效，改用内置数据认证。\n", dataFile);
+	if (dataFile[strlen(dataFile)-1] != '/')
+		printf("!! 所选文件%s无效，改用内置数据认证。\n", dataFile);
 	return -1;
 }
 
@@ -113,17 +114,10 @@ void newBuffer()
 {
 	if (dataFile[0] == '\0')
 		strcpy(dataFile, DATAFILE);
-	bufType = 0;
-	fillSize = 0x80;
-	if (getVersion() == 0) {
-		bufType = 1;
-		fillSize = 0x1d7;
-	}
-	if (strcmp(dataFile, DATAFILE) != 0) {
-		if (checkFile() == 0)
-			bufType += 2;
-		else fillSize = 0x1d7;
-	}
+	bufType = getVersion() ? 0 : 1;
+	if (checkFile() == 0)
+		bufType += 2;
+	else fillSize = (bufType==0 ? 0x80 : 0x1d7);
 	fillBuf = (u_char *)malloc(fillSize);
 }
 
