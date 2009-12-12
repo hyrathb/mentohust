@@ -434,8 +434,10 @@ static void checkRunning(int exitFlag, int daemonMode)	/* 这里是参考zRuijie
 		printf(">> 进入后台运行模式，使用参数-k可退出认证。\n");
 		if (daemon(0, (daemonMode+1)%2))
 			perror("!! 后台运行失败");
-		else if (daemonMode == 3)
-			stderr = stdout = fopen(LOG_FILE, "w");
+		else if (daemonMode == 3) {
+			freopen(LOG_FILE, "w", stdout);
+			freopen(LOG_FILE, "a", stderr);
+		}
 	}
 	fl.l_type = F_WRLCK;
 	fl.l_pid = getpid();

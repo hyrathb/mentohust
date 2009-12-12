@@ -7,8 +7,9 @@
 * 邮	箱：www.ehust@gmail.com
 * 日	期：2009.11.11
 */
-#ifndef NODLL
 #include "dlfunc.h"
+
+#ifndef NODLL
 #include <dlfcn.h>
 
 int (*pcap_findalldevs)(pcap_if_t **, char *);
@@ -26,8 +27,15 @@ int (*pcap_sendpacket)(pcap_t *, const unsigned char *, int);
 static void *libpcap = NULL;
 
 int load_libpcap(void) {
+	char *error;
+#ifdef MAC_OS
+	libpcap = dlopen("libpcap.dylib", RTLD_LAZY);
+	error = dlerror();
+	if (libpcap == NULL) {
+		printf("!! 打开libpcap.dylib失败: %s\n", error);
+#else
+	char file[20];
 	float ver;
-	char file[20], *error;
 	for (ver=1.1; ver>0.7; ver-=0.1) {
 		sprintf(file, "libpcap.so.%.1f", ver);
 		libpcap = dlopen(file, RTLD_LAZY);
@@ -37,6 +45,7 @@ int load_libpcap(void) {
 	}
 	if (libpcap == NULL) {
 		printf("!! 打开libpcap.so.1.1、libpcap.so.1.0、libpcap.so.0.9、libpcap.so.0.8失败，请检查是否已安装某个版本的libpcap。\n");
+#endif
 		return -1;
 	}
 	if ((pcap_findalldevs = dlsym(libpcap, "pcap_findalldevs"), error = dlerror()) != NULL
@@ -50,7 +59,7 @@ int load_libpcap(void) {
 		|| (pcap_close = dlsym(libpcap, "pcap_close"), error = dlerror()) != NULL
 		|| (pcap_breakloop = dlsym(libpcap, "pcap_breakloop"), error = dlerror()) != NULL
 		|| (pcap_sendpacket = dlsym(libpcap, "pcap_sendpacket"), error = dlerror()) != NULL) {
-		printf("!! 从%s获取函数失败: %s\n", file, error);
+		printf("!! 从libpcap获取函数失败: %s\n", error);
 		free_libpcap();
 		return -1;
 	}
@@ -68,7 +77,6 @@ void free_libpcap(void) {
 #endif	/* NODLL */
 
 #ifndef NONOTIFY
-#include "dlfunc.h"
 #include <dlfcn.h>
 
 typedef void NotifyNotification, GtkWidget, GError;
@@ -88,10 +96,15 @@ int load_libnotify(void) {
 	gboolean (*notify_init)(const char *);
 	NotifyNotification *(*notify_notification_new)(const gchar *, const gchar *,
 					const gchar *, GtkWidget *);
-	libnotify = dlopen("libnotify.so.1", RTLD_LAZY);
+#ifdef MAC_OS
+#define LIBNOTIFY_FILE	"libnotify.dylib"
+#else
+#define LIBNOTIFY_FILE	"libnotify.so.1"
+#endif
+	libnotify = dlopen(LIBNOTIFY_FILE, RTLD_LAZY);
 	error = dlerror();
 	if (libnotify == NULL) {
-		printf("!! 打开libnotify.so.1失败: %s\n", error);
+		printf("!! 打开%s失败: %s\n", LIBNOTIFY_FILE, error);
 		return -1;
 	}
 	if ((notify_init = dlsym(libnotify, "notify_init"), error = dlerror()) != NULL
@@ -99,7 +112,7 @@ int load_libnotify(void) {
 		|| (notify_notification_show = dlsym(libnotify, "notify_notification_show"), error = dlerror()) != NULL
 		|| (notify_notification_update = dlsym(libnotify, "notify_notification_update"), error = dlerror()) != NULL
 		|| (notify_notification_set_timeout = dlsym(libnotify, "notify_notification_set_timeout"), error = dlerror()) != NULL) {
-		printf("!! 从libnotify.so.1获取函数失败: %s\n", error);
+		printf("!! 从libnotify获取函数失败: %s\n", error);
 		free_libnotify();
 		return -1;
 	}

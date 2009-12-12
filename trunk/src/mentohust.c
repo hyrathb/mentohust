@@ -40,7 +40,6 @@ extern int lockfd;
 static void exit_handle(void);	/* 退出回调 */
 static void sig_handle(int sig);	/* 信号回调 */
 static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char *buf);	/* pcap_loop回调 */
-static char *gbk2utf(char *src, size_t srclen);	/* GBK转UTF－8 */
 static void showRuijieMsg(const u_char *buf, unsigned bufLen);	/* 显示锐捷服务器提示信息 */
 static void showCernetMsg(const u_char *buf);	/* 显示赛尔服务器提示信息 */
 
@@ -166,7 +165,11 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 	}
 }
 
-static char *gbk2utf(char *src, size_t srclen)
+#ifndef MAC_OS
+static char *gbk2utf(char *src, size_t srclen)	/* GBK转UTF－8 */
+#else
+static char *gbk2utf(const char *src, size_t srclen)	/* GBK转UTF－8 */
+#endif
 {
 #ifdef  HAVE_ICONV_H
 	/* GBK一汉字俩字节，UTF-8一汉字3字节，二者ASCII字符均一字节
