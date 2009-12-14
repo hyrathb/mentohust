@@ -9,7 +9,7 @@
 */
 #include "dlfunc.h"
 
-#ifndef NODLL
+#ifndef NO_DYLOAD
 #include <dlfcn.h>
 
 int (*pcap_findalldevs)(pcap_if_t **, char *);
@@ -74,9 +74,9 @@ void free_libpcap(void) {
 	}
 }
 
-#endif	/* NODLL */
+#endif	/* NO_DYLOAD */
 
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 #include <dlfcn.h>
 
 typedef void NotifyNotification, GtkWidget, GError;
@@ -149,5 +149,5 @@ void show_notify(const char *summary, char *body) {
 	notify_notification_show(notify, NULL);
 }
 
-#endif	/* NONOTIFY */
+#endif	/* NO_NOTIFY */
 

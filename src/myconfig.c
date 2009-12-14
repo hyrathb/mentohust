@@ -40,7 +40,7 @@ static const char *LOG_FILE = "/tmp/mentohust.log";	/* 日志文件 */
 static const char *LOCK_FILE = "/var/run/mentohust.pid";	/* 锁文件 */
 #define LOCKMODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)	/* 创建掩码 */
 
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 #define D_SHOWNOTIFY		5	/* 默认Show Notify模式 */
 int showNotify = D_SHOWNOTIFY;	/* 显示通知 */
 #endif
@@ -87,7 +87,7 @@ void initConfig(int argc, char **argv)
 			"Bug report to %s\n\n", VERSION, PACKAGE_BUGREPORT);
 	saveFlag = (readFile(&daemonMode)==0 ? 0 : 1);
 	readArg(argc, argv, &saveFlag, &exitFlag, &daemonMode);
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 	if (showNotify) {
 		if (load_libnotify() == -1)
 			showNotify = 0;
@@ -95,9 +95,9 @@ void initConfig(int argc, char **argv)
 			set_timeout(1000 * showNotify);
 	}
 #endif
-#ifndef NODLL
+#ifndef NO_DYLOAD
 	if (load_libpcap() == -1) {
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 		if (showNotify)
 			show_notify("MentoHUST - 错误提示", "载入libpcap失败, 请检查该库文件！");
 #endif
@@ -108,7 +108,7 @@ void initConfig(int argc, char **argv)
 	{
 		saveFlag = 1;
 		if (getAdapter() == -1) {	/* 找不到（第一块）网卡？ */
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 			if (showNotify)
 				show_notify("MentoHUST - 错误提示", "找不到网卡！");
 #endif
@@ -140,7 +140,7 @@ void initConfig(int argc, char **argv)
 	newBuffer();
 	printConfig();
 	if (fillHeader()==-1 || openPcap()==-1) {	/* 获取IP、MAC，打开网卡 */
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 		if (showNotify)
 			show_notify("MentoHUST - 错误提示", "获取MAC地址或打开网卡失败！");
 #endif
@@ -176,7 +176,7 @@ static int readFile(int *daemonMode)
 	restartWait = getInt(buf, "MentoHUST", "RestartWait", D_RESTARTWAIT) % 100;
 	startMode = getInt(buf, "MentoHUST", "StartMode", D_STARTMODE) % 3;
 	dhcpMode = getInt(buf, "MentoHUST", "DhcpMode", D_DHCPMODE) % 4;
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 	showNotify = getInt(buf, "MentoHUST", "ShowNotify", D_SHOWNOTIFY) % 21;
 #endif
 	*daemonMode = getInt(buf, "MentoHUST", "DaemonMode", D_DAEMONMODE) % 4;
@@ -232,7 +232,7 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 				startMode = atoi(str+2) % 3;
 			else if (c == 'd')
 				dhcpMode = atoi(str+2) % 4;
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 			else if (c == 'y')
 				showNotify = atoi(str+2) % 21;
 #endif
@@ -265,7 +265,7 @@ static void showHelp(const char *fileName)
 	helpString =
 		"\t-d DHCP方式: 0(不使用) 1(二次认证) 2(认证后) 3(认证前) [默认0]\n"
 		"\t-b 是否后台运行: 0(否) 1(是，关闭输出) 2(是，保留输出) 3(是，输出到文件) ［默认0］\n"
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 		"\t-y 是否显示通知: 0(否) 1～20(是)[默认5］\n"
 #endif
 		"\t-f 自定义数据文件[默认不使用]\n"
@@ -334,7 +334,7 @@ static void printConfig()
 	printf("** 失败等待:\t%d秒\n", restartWait);
 	printf("** 组播地址:\t%s\n", addr[startMode]);
 	printf("** DHCP方式:\t%s\n", dhcp[dhcpMode]);
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 	if (showNotify)
 		printf("** 通知超时:\t%d秒\n", showNotify);
 #endif
@@ -376,7 +376,7 @@ static void saveConfig(int daemonMode)
 	}
 	setString(&buf, "MentoHUST", "DhcpScript", dhcpScript);
 	setString(&buf, "MentoHUST", "DataFile", dataFile);
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 	setInt(&buf, "MentoHUST", "ShowNotify", showNotify);
 #endif
 	setInt(&buf, "MentoHUST", "DaemonMode", daemonMode);
@@ -448,7 +448,7 @@ static void checkRunning(int exitFlag, int daemonMode)	/* 这里是参考zRuijie
 	return;
 
 error_exit:
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 	if (showNotify)
 		show_notify("MentoHUST - 错误提示", "操作锁文件失败，请检查是否为root权限！");
 #endif

@@ -31,7 +31,7 @@ extern u_char *fillBuf;
 extern const u_char *capBuf;
 extern unsigned startMode;
 extern unsigned dhcpMode;
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 extern int showNotify;
 #endif
 extern u_char destMAC[];
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 		switchState(ID_START);	/* 开始认证 */
 	if (-1 == pcap_loop(hPcap, -1, pcap_handle, NULL)) { /* 开始捕获数据包 */
 		printf("!! 捕获数据包失败，请检查网络连接！\n");
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 		if (showNotify)
 			show_notify("MentoHUST - 错误提示", "捕获数据包失败，请检查网络连接！");
 #endif
@@ -77,10 +77,10 @@ static void exit_handle(void)
 		free(fillBuf);
 	if (lockfd > -1)
 		close(lockfd);
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 	free_libnotify();
 #endif
-#ifndef NODLL
+#ifndef NO_DYLOAD
 	free_libpcap();
 #endif
 	printf(">> 认证已退出。\n");
@@ -94,7 +94,7 @@ static void sig_handle(int sig)
 		{
 			pcap_breakloop(hPcap);
 			printf("!! 发送数据包失败, 请检查网络连接！\n");
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 			if (showNotify)
 				show_notify("MentoHUST - 错误提示", "发送数据包失败, 请检查网络连接！");
 #endif
@@ -211,7 +211,7 @@ static void showRuijieMsg(const u_char *buf, unsigned bufLen)
 		if (length>0 && (serverMsg=gbk2utf(serverMsg, length))!=NULL)
 		{
 			printf("$$ 系统提示:\t%s\n", serverMsg);
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 			if (showNotify)
 				show_notify("MentoHUST - 系统提示", serverMsg);
 #endif
@@ -230,7 +230,7 @@ static void showRuijieMsg(const u_char *buf, unsigned bufLen)
 		if (length>0 && (serverMsg=gbk2utf(serverMsg, length))!=NULL)
 		{
 			printf("$$ 计费提示:\t%s\n", serverMsg);
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 			if (showNotify)
 				show_notify("MentoHUST - 计费提示", serverMsg);
 #endif
@@ -249,7 +249,7 @@ static void showCernetMsg(const u_char *buf)
 	if (length>0 && (serverMsg=gbk2utf(serverMsg, length))!=NULL)
 	{
 		printf("$$ 系统提示:\t%s\n", serverMsg);
-#ifndef NONOTIFY
+#ifndef NO_NOTIFY
 			if (showNotify)
 				show_notify("MentoHUST - 系统提示", serverMsg);
 #endif
