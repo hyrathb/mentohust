@@ -1,7 +1,5 @@
 bin_PROGRAMS = mentohust
 
-EXTRA_DIST = $(top_srcdir)/other/pcap.h $(top_srcdir)/other/pcap-bpf.h
-
 sysconfdir = /etc
 
 dist_sysconf_DATA = mentohust.conf
