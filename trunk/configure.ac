@@ -9,15 +9,15 @@ AC_CONFIG_SRCDIR([src/myconfig.h])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
-AC_PROG_CC
-
 AC_ARG_ENABLE([debug], [AC_HELP_STRING([--enable-debug], [build a debug version])],
               [CFLAGS="-g -O0 -DDEBUG -Wall"],
               [CFLAGS="-Os -Wall"])
 
+AC_PROG_CC
+
 # Checks for libraries.
 AS_CASE([$host_os],
-        [*apple* | *darwin*],
+        [*darwin*],
         [AC_DEFINE(MAC_OS, [], [Define MAC_OS when compiling for Mac OS])
          AC_CHECK_LIB([iconv], [iconv])])
 
