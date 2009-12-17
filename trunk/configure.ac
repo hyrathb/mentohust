@@ -10,8 +10,8 @@ AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_ARG_ENABLE([debug], [AC_HELP_STRING([--enable-debug], [build a debug version])],
-              [CFLAGS="-g -O0 -DDEBUG -Wall"],
-              [CFLAGS="-Os -Wall"])
+              [CFLAGS="$CFLAGS -g -O0 -DDEBUG -Wall"],
+              [CFLAGS="$CFLAGS -Os -Wall"])
 
 AC_PROG_CC
 
