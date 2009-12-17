@@ -14,6 +14,7 @@ AC_ARG_ENABLE([debug], [AC_HELP_STRING([--enable-debug], [build a debug version]
               [CFLAGS="$CFLAGS -Os -Wall"])
 
 AC_PROG_CC
+AC_C_BIGENDIAN
 
 # Checks for libraries.
 AS_CASE([$host_os],
@@ -42,7 +43,6 @@ AC_CHECK_HEADERS([iconv.h arpa/inet.h fcntl.h netinet/in.h stdint.h stdlib.h str
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
-AC_TYPE_UINT32_T
 
 # Checks for library functions.
 AC_CHECK_FUNCS([atexit memmove memset socket strrchr])
