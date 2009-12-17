@@ -13,8 +13,20 @@
 
 static BYTE *bin_8021x = NULL;
 static DWORD size_8021x;
-static BYTE hex[][17]={"0123456789ABCDEF",
-						"0123456789abcdef"};
+static BYTE hex[][17]={"0123456789ABCDEF", "0123456789abcdef"};
+
+#ifdef WORDS_BIGENDIAN
+WORD ftoms(WORD x) {
+	return	((x & 0xff) << 8) | ((x & 0xff00) >> 8);
+}
+
+DWORD ftoml(DWORD x) {
+	return	((x & 0xff) << 24) |\
+			((x & 0xff00) << 8) |\
+			((x & 0xff0000) >> 8) |\
+			((x & 0xff000000) >> 24);
+}
+#endif
 
 void hex_to_str(const BYTE *a, char *b, int hexsize, int upper) {
 	BYTE *q = (BYTE *)b;
@@ -38,11 +50,11 @@ BYTE *ReadCode(const char *file, DWORD *size) {
 	if (fread(data, 0x1000, 1, fp) < 1)
 		goto fileError;
 	
-	hpe = (PPE_HEADER_MAP)(((PIMAGE_DOS_HEADER)data)->e_lfanew + data);
-	for (i=0; i<hpe->_head.NumberOfSections; i++) {
-		if (hpe->section_header[i].Characteristics & (IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_CNT_CODE)) {
-			fseek(fp, hpe->section_header[i].PointerToRawData, SEEK_SET);
-			*size = hpe->section_header[i].SizeOfRawData;
+	hpe = (PPE_HEADER_MAP)(data + FTOML(((PIMAGE_DOS_HEADER)data)->e_lfanew));
+	for (i=0; i<FTOMS(hpe->_head.NumberOfSections); i++) {
+		if (FTOML(hpe->section_header[i].Characteristics) & (IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_CNT_CODE)) {
+			fseek(fp, FTOML(hpe->section_header[i].PointerToRawData), SEEK_SET);
+			*size = FTOML(hpe->section_header[i].SizeOfRawData);
 			free(data);
 			data = (BYTE *)malloc(*size);
 			if (fread(data, *size, 1, fp) < 1)
@@ -66,7 +78,7 @@ BYTE *ReadCode2(const char *dataFile, DWORD *size) {
 	if ((fp=fopen(dataFile, "rb")) == NULL
 		|| fread(buf, 16, 1, fp ) < 1)
 		goto fileError;
-	*size = (*(UINT4 *)buf ^ *(UINT4 *)(buf + 4));
+	*size = FTOML(*(UINT4 *)buf ^ *(UINT4 *)(buf + 4));
 	if ((int)*size <= 0)
 		goto fileError;
 	buf = (BYTE *)malloc(*size+0x100);
@@ -135,23 +147,26 @@ DWORD getVer(const char *file) {
 	if (fread(data, 0x1000, 1, fp) < 1)
 		goto fileError;
 
-	hpe = (PPE_HEADER_MAP)(((PIMAGE_DOS_HEADER)data)->e_lfanew + data);
-	for (i=hpe->_head.NumberOfSections-1; i>=0; i--) {
+	hpe = (PPE_HEADER_MAP)(data + FTOML(((PIMAGE_DOS_HEADER)data)->e_lfanew));
+	for (i=FTOMS(hpe->_head.NumberOfSections)-1; i>=0; i--) {
 		if (strcmp(hpe->section_header[i].Name, ".rsrc") == 0) {
-			fseek(fp, hpe->section_header[i].PointerToRawData, SEEK_SET);
-			size = hpe->section_header[i].SizeOfRawData;
-			VirtualAddress = hpe->section_header[i].VirtualAddress;
+			fseek(fp, FTOML(hpe->section_header[i].PointerToRawData), SEEK_SET);
+			size = FTOML(hpe->section_header[i].SizeOfRawData);
+			VirtualAddress = FTOML(hpe->section_header[i].VirtualAddress);
 			free(data);
 			data = (BYTE *)malloc(size);
 			if (fread(data, size, 1, fp) < 1)
 				goto fileError;
 			prd = (PIMAGE_RESOURCE_DIRECTORY)data;
-			for (j=0; j<prd->NumberOfIdEntries; j++) {
+			for (j=0; j<FTOMS(prd->NumberOfIdEntries); j++) {
+				prd->DirectoryEntries[j].Name = FTOML(prd->DirectoryEntries[j].Name);
 				if (prd->DirectoryEntries[j].Id==16 && prd->DirectoryEntries[j].NameIsString==0) {
+					prd->DirectoryEntries[j].OffsetToData = FTOML(prd->DirectoryEntries[j].OffsetToData);
 					prd = (PIMAGE_RESOURCE_DIRECTORY)(data+prd->DirectoryEntries[j].OffsetToDirectory);
+					prd->DirectoryEntries[0].OffsetToData = FTOML(prd->DirectoryEntries[0].OffsetToData);
 					prd = (PIMAGE_RESOURCE_DIRECTORY)(data+prd->DirectoryEntries[0].OffsetToDirectory);
-					prde = (PIMAGE_RESOURCE_DATA_ENTRY)(data+prd->DirectoryEntries[0].OffsetToData);
-					pvs = (PVS_VERSIONINFO)(data+(prde->OffsetToData-VirtualAddress));
+					prde = (PIMAGE_RESOURCE_DATA_ENTRY)(data+FTOML(prd->DirectoryEntries[0].OffsetToData));
+					pvs = (PVS_VERSIONINFO)(data+FTOML(prde->OffsetToData)-VirtualAddress);
 					size = pvs->Value.dwFileVersionMS;
 					fclose(fp);
 					free(data);
