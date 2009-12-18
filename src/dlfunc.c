@@ -29,23 +29,18 @@ static void *libpcap = NULL;
 int load_libpcap(void) {
 	char *error;
 #ifdef MAC_OS
-	libpcap = dlopen("libpcap.dylib", RTLD_LAZY);
-	error = dlerror();
-	if (libpcap == NULL) {
-		printf("!! 打开libpcap.dylib失败: %s\n", error);
+	char *file[] = {"libpcap.dylib", "libpcap.A.dylib"};
+	int i, count = 2;
 #else
-	char file[20];
-	float ver;
-	for (ver=1.1; ver>0.7; ver-=0.1) {
-		sprintf(file, "libpcap.so.%.1f", ver);
-		libpcap = dlopen(file, RTLD_LAZY);
+	char *file[] = {"libpcap.so", "libpcap.so.1.1", "libpcap.so.1.0", "libpcap.so.0.9", "libpcap.so.0.8"};
+	int i, count = 5;
+#endif
+	for (i=0; i<count && !libpcap; i++) {
+		libpcap = dlopen(file[i], RTLD_LAZY);
 		error = dlerror();
-		if (libpcap != NULL)
-			break;
 	}
 	if (libpcap == NULL) {
-		printf("!! 打开libpcap.so.1.1、libpcap.so.1.0、libpcap.so.0.9、libpcap.so.0.8失败，请检查是否已安装某个版本的libpcap。\n");
-#endif
+		printf("!! 打开libpcap失败，请检查是否已安装该库文件。\n");
 		return -1;
 	}
 	if ((pcap_findalldevs = dlsym(libpcap, "pcap_findalldevs"), error = dlerror()) != NULL
@@ -97,14 +92,18 @@ int load_libnotify(void) {
 	NotifyNotification *(*notify_notification_new)(const gchar *, const gchar *,
 					const gchar *, GtkWidget *);
 #ifdef MAC_OS
-#define LIBNOTIFY_FILE	"libnotify.dylib"
+	char *file[] = {"libnotify.dylib", "libnotify.1.dylib"};
+	int i, count = 2;
 #else
-#define LIBNOTIFY_FILE	"libnotify.so.1"
+	char *file[] = {"libnotify.so", "libnotify.so.1"};
+	int i, count = 2;
 #endif
-	libnotify = dlopen(LIBNOTIFY_FILE, RTLD_LAZY);
-	error = dlerror();
+	for (i=0; i<count && !libnotify; i++) {
+		libnotify = dlopen(file[i], RTLD_LAZY);
+		error = dlerror();
+	}
 	if (libnotify == NULL) {
-		printf("!! 打开%s失败: %s\n", LIBNOTIFY_FILE, error);
+		printf("!! 打开libnotify失败，请检查是否已安装该库文件。\n");
 		return -1;
 	}
 	if ((notify_init = dlsym(libnotify, "notify_init"), error = dlerror()) != NULL
