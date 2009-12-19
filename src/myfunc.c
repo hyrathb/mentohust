@@ -78,7 +78,7 @@ static int checkFile() {
 		fclose(fp);
 		goto fileError;
 	}
-	dataOffset = (int)FTOML(*(u_int32_t *)buf ^ *(u_int32_t *)(buf + 8)) + 16;
+	dataOffset = (int)LTOBL(*(u_int32_t *)buf ^ *(u_int32_t *)(buf + 8)) + 16;
 	fseek(fp, 0, SEEK_END);
 	fillSize = ftell(fp);
 	fclose(fp);

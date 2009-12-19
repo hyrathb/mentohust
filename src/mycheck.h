@@ -201,13 +201,13 @@ typedef struct _VS_VERSIONINFO {
 #define IMAGE_SCN_MEM_EXECUTE			0x20000000	// Section is executable
 
 #ifdef WORDS_BIGENDIAN
-#define FTOMS(x) ftoms(x)
-#define FTOML(x) ftoml(x)
-WORD ftoms(WORD x);
-DWORD ftoml(DWORD x);
+#define LTOBS(x) ltobs(x)
+#define LTOBL(x) ltobl(x)
+WORD ltobs(WORD x);
+DWORD ltobl(DWORD x);
 #else
-#define FTOMS(x) (x)
-#define FTOML(x) (x)
+#define LTOBS(x) (x)
+#define LTOBL(x) (x)
 #endif
 
 int check_init(const char *dataFile);
