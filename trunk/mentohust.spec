@@ -4,7 +4,7 @@ Release:        1%{?dist}
 Summary:        锐捷和塞尔认证
 
 Group:          Applications/Internet
-License:        GPL
+License:        BSD
 URL:            http://code.google.com/p/mentohust/
 Source0:        http://mentohust.googlecode.com/files/mentohust-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
