@@ -9,7 +9,6 @@
 #include "myini.h"
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 #define NOT_COMMENT(c)	(c!=';' && c!='#')	/* 不是注释行 */
 
@@ -27,7 +26,6 @@ char *loadFile(const char *fileName)
 	FILE *fp = NULL;
 	long size = 0;
 	char *buf = NULL;
-	assert(fileName != NULL);
 	if ((fp=fopen(fileName, "rb")) == NULL)
 		return NULL;
 	fseek(fp, 0, SEEK_END);
@@ -92,13 +90,6 @@ int getString(const char *buf, const char *section, const char *key,
 	int sectionStart, valueStart;
 	unsigned long valueSize;
 
-	assert(section != NULL && strlen(section) > 0);
-	assert(key != NULL && strlen(key) > 0);
-	assert(defaultValue != NULL);
-	assert(value != NULL);
-	assert(size > 0);
-	assert(buf != NULL);
-
 	if (findKey(buf, section, key, &sectionStart, &valueStart, &valueSize)!=0 || valueSize==0)	/* 未找到？ */
 	{
 		strncpy(value, defaultValue, size);
@@ -125,9 +116,6 @@ void setString(char **buf, const char *section, const char *key, const char *val
 	int sectionStart, valueStart;
 	unsigned long valueSize;
 	char *newBuf = NULL;
-
-	assert(*buf != NULL);
-	assert(section != NULL && strlen(section) > 0);
 
 	if (findKey(*buf, section, key, &sectionStart, &valueStart, &valueSize) == 0)	/* 找到key */
 	{
@@ -205,9 +193,6 @@ int saveFile(const char *buf, const char *fileName)
 {
 	FILE *fp;
 	int result;
-	
-	assert(buf != NULL);
-	assert(fileName != NULL);
 	
 	if ((fp=fopen(fileName, "wb")) == NULL)
 		return -1;

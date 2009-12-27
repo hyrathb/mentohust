@@ -75,6 +75,75 @@ static int openPcap();	/* 初始化pcap、设置过滤器 */
 static void saveConfig(int daemonMode);	/* 保存参数 */
 static void checkRunning(int exitFlag, int daemonMode);	/* 检测是否已运行 */
 
+#ifndef NO_ENCODE_PASS
+static const unsigned char base64Tab[] = {"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"};
+static const char xorRuijie[] = {"~!:?$*<(qw2e5o7i8x12c6m67s98w43d2l45we82q3iuu1z4xle23rt4oxclle34e54u6r8m"};
+
+static int encodePass(char *dst, const char *osrc) {
+    unsigned char in[3], buf[70];
+	unsigned char *src = buf;
+	int sz = strlen(osrc);
+    int i, len;
+	if (sizeof(xorRuijie) < sz)
+		return -1;
+	for(i=0; i<sz; i++)
+		src[i] = osrc[i] ^ xorRuijie[i];
+    while (sz > 0) {
+        for (len=0, i=0; i<3; i++, sz--) {
+			if (sz > 0) {
+				len++;
+				in[i] = src[i];
+            } else in[i] = 0;
+        }
+        src += 3;
+        if (len) {
+			dst[0] = base64Tab[ in[0] >> 2 ];
+			dst[1] = base64Tab[ ((in[0] & 0x03) << 4) | ((in[1] & 0xf0) >> 4) ];
+			dst[2] = len > 1 ? base64Tab[ ((in[1] & 0x0f) << 2) | ((in[2] & 0xc0) >> 6) ] : '=';
+			dst[3] = len > 2 ? base64Tab[ in[2] & 0x3f ] : '=';
+            dst += 4;
+        }
+    }
+    *dst = '\0';
+	return 0;
+}
+
+static int decodePass(char *dst, const char *src) {
+	unsigned esi = 0, idx = 0;
+	int i=0, j=0, equal=0;
+	for(; src[i]!='\0'; i++) {
+		if (src[i] == '=') {
+			if (++equal > 2)
+				return -1;
+		} else {
+			for(idx=0; base64Tab[idx]!='\0'; idx++) {
+				if(base64Tab[idx] == src[i])
+					break;
+			}
+			if (idx == 64)
+				return -1;
+			esi += idx;
+		}
+		if(i%4 == 3) {
+			dst[j++] = (char)(esi>>16);
+			if(equal < 2)
+				dst[j++] = (char)(esi>>8);
+			if(equal < 1)
+				dst[j++] = (char)esi;
+			esi = 0;
+			equal = 0;
+		}
+		esi <<= 6;
+	}
+	if (i%4!=0 || sizeof(xorRuijie)<j)
+		return -1;
+	for(i=0; i<j; i++)
+		dst[i] ^= xorRuijie[i];
+	dst[j] = '\0';
+	return 0;
+}
+#endif
+
 void initConfig(int argc, char **argv)
 {
 	int saveFlag = 0;	/* 是否需要保存参数 */
@@ -158,6 +227,18 @@ static int readFile(int *daemonMode)
 		return -1;
 	getString(buf, "MentoHUST", "Username", "", userName, sizeof(userName));
 	getString(buf, "MentoHUST", "Password", "", password, sizeof(password));
+#ifndef NO_ENCODE_PASS
+	char pass[ACCOUNT_SIZE*4/3];
+	if (password[0] == '\0') {
+		getString(buf, "MentoHUST", "EncodePass", "", pass, sizeof(pass));
+		decodePass(password, pass);
+	} else {
+		encodePass(pass, password);
+		setString(&buf, "MentoHUST", "Password", NULL);
+		setString(&buf, "MentoHUST", "EncodePass", pass);
+		saveFile(buf, CFG_FILE);
+	}
+#endif
 	getString(buf, "MentoHUST", "Nic", "", nic, sizeof(nic));
 	getString(buf, "MentoHUST", "Datafile", "", dataFile, sizeof(dataFile));
 	getString(buf, "MentoHUST", "DhcpScript", "", dhcpScript, sizeof(dhcpScript));
@@ -260,9 +341,7 @@ static void showHelp(const char *fileName)
 		"\t-t 认证超时(秒)[默认8]\n"
 		"\t-e 响应间隔(秒)[默认30]\n"
 		"\t-r 失败等待(秒)[默认15]\n"
-		"\t-a 组播地址: 0(标准) 1(锐捷) 2(赛尔) [默认0]\n";
-	printf(helpString, fileName);
-	helpString =
+		"\t-a 组播地址: 0(标准) 1(锐捷) 2(赛尔) [默认0]\n"
 		"\t-d DHCP方式: 0(不使用) 1(二次认证) 2(认证后) 3(认证前) [默认0]\n"
 		"\t-b 是否后台运行: 0(否) 1(是，关闭输出) 2(是，保留输出) 3(是，输出到文件) ［默认0］\n"
 #ifndef NO_NOTIFY
@@ -272,7 +351,7 @@ static void showHelp(const char *fileName)
 		"\t-c DHCP脚本[默认dhclient]\n"
 		"例如:\t%s -uusername -ppassword -neth0 -i192.168.0.1 -m255.255.255.0 -g0.0.0.0 -s0.0.0.0 -o0.0.0.0 -t8 -e30 -r15 -a0 -d1 -b0 -fdefault.mpf -cdhclient\n"
 		"使用时请确保是以root权限运行！\n\n";
-	printf(helpString, fileName);
+	printf(helpString, fileName, fileName);
 	exit(EXIT_SUCCESS);
 }
 
@@ -391,7 +470,13 @@ static void saveConfig(int daemonMode)
 	setString(&buf, "MentoHUST", "Mask", formatIP(mask));
 	setString(&buf, "MentoHUST", "IP", formatIP(ip));
 	setString(&buf, "MentoHUST", "Nic", nic);
+#ifdef NO_ENCODE_PASS
 	setString(&buf, "MentoHUST", "Password", password);
+#else
+	char pass[ACCOUNT_SIZE*4/3];
+	encodePass(pass, password);
+	setString(&buf, "MentoHUST", "EncodePass", pass);
+#endif
 	setString(&buf, "MentoHUST", "Username", userName);
 	if (saveFile(buf, CFG_FILE) != 0)
 		printf("!! 保存认证参数到%s失败！\n", CFG_FILE);
