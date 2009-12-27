@@ -10,12 +10,17 @@ AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AS_IF([test "x$prefix" = "xNONE"], [prefix="/usr"])
-AC_ARG_ENABLE([debug], [AC_HELP_STRING([--enable-debug], [build a debug version])],
+AC_ARG_ENABLE([debug], [AC_HELP_STRING([--enable-debug], [Build a debug version])],
               [CFLAGS="$CFLAGS -g -O0 -DDEBUG -Wall"],
               [CFLAGS="$CFLAGS -Os -Wall"])
 
 AC_PROG_CC
 AC_C_BIGENDIAN
+
+AC_ARG_ENABLE([encodepass], [AC_HELP_STRING([--disable-encodepass], [Don't encode password])],
+              [], [enable_encodepass="yes"])
+AS_IF([test "x$enable_encodepass" = "xno"],
+      [AC_DEFINE(NO_ENCODE_PASS, [], [Define NO_ENCODE_PASS to disable encoding password])])
 
 # Checks for libraries.
 AS_CASE([$host_os],
@@ -50,5 +55,5 @@ AC_CHECK_FUNCS([atexit memmove memset socket strrchr])
 
 AC_CONFIG_FILES([Makefile src/Makefile])
 
-AC_MSG_RESULT([config result: host_os($host_os) with_pcap($with_pcap) enable_notify($enable_notify)])
+AC_MSG_RESULT([config result: host($host_os) pcap($with_pcap) notify($enable_notify) encode_pass($enable_encodepass)])
 AC_OUTPUT
