@@ -38,6 +38,27 @@ AS_IF([test "$with_pcap" = "dyload"], [AC_CHECK_LIB([dl], [dlsym])],
                [stlib], [AC_SUBST(LDADD, libpcap.a)],
                [AC_SUBST(LDADD, "$with_pcap")])])
 
+# Checks for libraries.
+AC_CHECK_LIB([iconv], [iconv])
+AC_ARG_ENABLE(nodypcap,
+                [ AC_HELP_STRING([--enable-nodypcap], [Don't load libpcap.so dynamicly]) ],
+                [
+                  AC_CHECK_LIB([pcap], [pcap_sendpacket])
+                  CFLAGS+="-DNODLL"
+                ])
+                
+AS_IF([test x"$enable_nodypcap" = xno],[
+
+	AC_ARG_ENABLE(static,
+				[ AC_HELP_STRING([--enable-static], [Staticly link with libpcap.a]) ],
+				[
+				  AC_SUBST(LDADD,'$(top_builddir)'/other/libpcap.a)
+				  CFLAGS+="-DNODLL"
+				],
+				[ AC_CHECK_LIB([dl], [dlsym]) ]
+			  )
+])
+
 AC_ARG_ENABLE([notify], [AC_HELP_STRING([--disable-notify], [Don't show notification])],
               [], [enable_notify="yes"])
 AS_IF([test "x$enable_notify" = "xno"],
