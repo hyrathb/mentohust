@@ -32,7 +32,7 @@ int load_libpcap(void) {
 	char *file[] = {"libpcap.dylib", "libpcap.A.dylib"};
 	int i, count = 2;
 #else
-	char *file[] = {"libpcap.so", "libpcap.so.1.1", "libpcap.so.1.0", "libpcap.so.0.9", "libpcap.so.0.8"};
+	char *file[] = {"libpcap.so", "libpcap.so.1", "libpcap.so.1.0", "libpcap.so.0.9", "libpcap.so.0.8"};
 	int i, count = 5;
 #endif
 	for (i=0; i<count && !libpcap; i++) {
