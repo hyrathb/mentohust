@@ -1,0 +1,3 @@
+version=3
+http://code.google.com/p/mentohust/downloads/list \
+						  http://mentohust.googlecode.com/files/mentohust-(.*).tar.gz
