@@ -1,0 +1,41 @@
+mentohust (0.3.1-1) karmic; urgency=low
+
+  * new upstream release.
+  * add a manpage.
+
+ -- HustMoon <mentohust@ehust.co.cc>  Thu, 03 Dec 2009 21:26:15 +0800
+
+mentohust (0.3.0-1) karmic; urgency=low
+
+  * new upstream release.
+  * debian/control: remove libpcap0.8-dev from Build-Depends.
+  * debian/control: change libpcap0.8 to libpcap0.8 | libpcap0.9 | libpcap1.0 | libpcap1.1 in Depends.
+
+ -- HustMoon <mentohust@ehust.co.cc>  Thu, 12 Nov 2009 14:42:15 +0800
+
+mentohust (0.2.5-0~r1) karmic; urgency=low
+
+  * New upstream release
+  * Moved the executable from /usr/sbin/ to /usr/bin/
+
+ -- Cheese Lee <cheeselee@126.com>  Wed, 04 Nov 2009 16:07:18 +0800
+
+mentohust (0.2.4-0~r3) karmic; urgency=low
+
+  * Changed versioning suffix
+  * Purged some empty files
+  * Renamed the executable to lowercases
+
+ -- Cheese Lee <cheeselee@126.com>  Fri, 30 Oct 2009 10:50:03 +0800
+
+mentohust (0.2.4-0~ppa2) karmic; urgency=low
+
+  * Depend on libpcap0.8 without version
+
+ -- Cheese Lee <cheeselee@126.com>  Thu, 29 Oct 2009 16:24:20 +0800
+
+mentohust (0.2.4-0~ppa1) karmic; urgency=low
+
+  * Initial release
+
+ -- Cheese Lee <cheeselee@126.com>  Tue, 27 Oct 2009 19:44:51 +0800
