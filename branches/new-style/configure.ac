@@ -13,8 +13,11 @@ AS_IF([test "x$prefix" = "xNONE"], [prefix="/usr"])
 AC_ARG_ENABLE([debug], [AC_HELP_STRING([--enable-debug], [Build a debug version])],
               [CFLAGS="$CFLAGS -g -O0 -DDEBUG -Wall"],
               [CFLAGS="$CFLAGS -Os -Wall"])
-
+              
+AC_PROG_INSTALL
 AC_PROG_CC
+AC_PROG_RANLIB
+
 AC_C_BIGENDIAN
 
 AC_ARG_ENABLE([encodepass], [AC_HELP_STRING([--disable-encodepass], [Don't encode password])],
@@ -53,7 +56,7 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_CHECK_FUNCS([atexit memmove memset socket strrchr])
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile packet/Makefile src/Makefile])
 
 AC_MSG_RESULT([config result: host($host_os) pcap($with_pcap) notify($enable_notify) encode_pass($enable_encodepass)])
 AC_OUTPUT

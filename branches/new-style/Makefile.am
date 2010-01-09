@@ -1,4 +1,4 @@
-SUBDIRS = src
+SUBDIRS = packet src
 
 dist_doc_DATA = README
 
