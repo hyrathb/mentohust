@@ -244,9 +244,9 @@ static int readFile(int *daemonMode)
 	getString(buf, "MentoHUST", "Datafile", "", dataFile, sizeof(dataFile));
 	getString(buf, "MentoHUST", "DhcpScript", "", dhcpScript, sizeof(dhcpScript));
 	getString(buf, "MentoHUST", "Version", "", tmp, sizeof(tmp));
-	if (strlen(tmp) >= 4) {
+	if (strlen(tmp) >= 3) {
 		unsigned ver[2];
-		if (sscanf(tmp, "%u.%u", ver, ver+1) != EOF) {
+		if (sscanf(tmp, "%u.%u", ver, ver+1)!=EOF && ver[0]!=0) {
 			version[0] = ver[0];
 			version[1] = ver[1];
 			bufType = 1;
@@ -303,12 +303,16 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 				strncpy(dataFile, str+2, sizeof(dataFile)-1);
 			else if (c == 'c')
 				strncpy(dhcpScript, str+2, sizeof(dhcpScript)-1);
-			else if (c=='v' && strlen(str+2)>=4) {
+			else if (c=='v' && strlen(str+2)>=3) {
 				unsigned ver[2];
 				if (sscanf(str+2, "%u.%u", ver, ver+1) != EOF) {
-					version[0] = ver[0];
-					version[1] = ver[1];
-					bufType = 1;
+					if (ver[0] == 0)
+						bufType = 0;
+					else {
+						version[0] = ver[0];
+						version[1] = ver[1];
+						bufType = 1;
+					}
 				}
 			}
 			else if (c == 'i')
@@ -365,7 +369,7 @@ static void showHelp(const char *fileName)
 #ifndef NO_NOTIFY
 		"\t-y 是否显示通知: 0(否) 1~20(是) [默认5]\n"
 #endif
-		"\t-v 客户端版本号[默认兼容xrgsu]\n"
+		"\t-v 客户端版本号[默认0.00表示兼容xrgsu]\n"
 		"\t-f 自定义数据文件[默认不使用]\n"
 		"\t-c DHCP脚本[默认dhclient]\n"
 		"例如:\t%s -uusername -ppassword -neth0 -i192.168.0.1 -m255.255.255.0 -g0.0.0.0 -s0.0.0.0 -o0.0.0.0 -t8 -e30 -r15 -a0 -d1 -b0 -v4.10 -fdefault.mpf -cdhclient\n"
@@ -477,7 +481,8 @@ static void saveConfig(int daemonMode)
 		char ver[10];
 		sprintf(ver, "%u.%u", version[0], version[1]);
 		setString(&buf, "MentoHUST", "Version", ver);
-	}
+	} else
+		setString(&buf, "MentoHUST", "Version", "0.00");
 #ifndef NO_NOTIFY
 	setInt(&buf, "MentoHUST", "ShowNotify", showNotify);
 #endif
