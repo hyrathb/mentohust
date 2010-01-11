@@ -23,8 +23,7 @@ extern const u_char STANDARD_ADDR[];
 extern char userName[];
 extern unsigned startMode;
 extern unsigned dhcpMode;
-extern u_char localMAC[];
-extern u_char destMAC[];
+extern u_char localMAC[], destMAC[], gateMAC[];
 extern unsigned timeout;
 extern unsigned echoInterval;
 extern unsigned restartWait;
@@ -32,7 +31,7 @@ extern char dhcpScript[];
 extern pcap_t *hPcap;
 extern u_char *fillBuf;
 extern unsigned fillSize;
-extern u_int32_t pingHost;
+extern u_int32_t pingHost, rip, gateway;
 
 static void setTimer(unsigned interval);	/* 设置定时器 */
 static int renewIP();	/* 更新IP */
@@ -43,6 +42,7 @@ static int sendChallengePacket();   /* 发送Md5 Challenge包 */
 static int sendEchoPacket();	/* 发送心跳包 */
 static int sendLogoffPacket();  /* 发送退出包 */
 static int waitEchoPacket();	/* 等候响应包 */
+static void sendArpPacket();	/* ARP应答 */
 
 static void setTimer(unsigned interval) /* 设置定时器 */
 {
@@ -102,6 +102,8 @@ int switchState(int type)
 			}
 			sendCount = 1;
 		}
+		if (gateMAC[0] != 0xFE)
+			sendArpPacket();
 		return sendEchoPacket();
 	case ID_DISCONNECT:
 		return sendLogoffPacket();
@@ -290,4 +292,30 @@ static int waitEchoPacket()
 	if (sendCount == 0)
 		setTimer(echoInterval);
 	return 0;
+}
+
+static void sendArpPacket()
+{
+	u_char arpPacket[0x3C] = {
+		0xff,0xff,0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x08,0x06,0x00,0x01,
+		0x08,0x00,0x06,0x04,0x00};
+
+	if (gateMAC[0] != 0xFF) {
+		memcpy(arpPacket, gateMAC, 6);
+		memcpy(arpPacket+0x06, localMAC, 6);
+		arpPacket[0x15]=0x02;
+		memcpy(arpPacket+0x16, localMAC, 6);
+		memcpy(arpPacket+0x1c, &rip, 4);
+		memcpy(arpPacket+0x20, gateMAC, 6);
+		memcpy(arpPacket+0x26, &gateway, 4);
+		pcap_sendpacket(hPcap, arpPacket, 0x3C);
+	}
+	memset(arpPacket, 0xFF, 6);
+	memcpy(arpPacket+0x06, localMAC, 6);
+	arpPacket[0x15]=0x01;
+	memcpy(arpPacket+0x16, localMAC, 6);
+	memcpy(arpPacket+0x1c, &rip, 4);
+	memset(arpPacket+0x20, 0, 6);
+	memcpy(arpPacket+0x26, &gateway, 4);
+	pcap_sendpacket(hPcap, arpPacket, 0x2A);
 }
