@@ -1,6 +1,8 @@
+#summary 本文详细介绍了安装MentoHUST的方法，以及设置开机运行的方法。
+
 本文介绍两种安装MentoHUST的方法：
-  * 依据平台来安装MentoHUST：[Install#二进制软件包]
-  * 手动编译安装MentoHUST：[Install#手动编译]
+  * 依据平台来安装MentoHUST：
+  * 手动编译安装MentoHUST：
 另外，也提供一些[install#开机运行 设置开启启动]的方法。
 
 = 二进制软件包 =
@@ -24,7 +26,8 @@ yaourt -S mentohust
 }}}
 另外，你也可以直接下载已经编译好的软件包（目前只有[mentohust-0.3.1-1-x86_64.pkg.tar.gz x86_64平台])
 
-== 其他发行版请自行编译安装 ==
+== 其他发行版 ==
+请自行编译安装
 
 = 手动编译 =
   # 准备好源代码。
@@ -89,7 +92,7 @@ fi
 待编辑。
 
 == 小技巧 ==
-  * 建议需要开机运行的用户使用以下命令将MentoHUST设置为daemon运行并保存输出到*/tmp/mentohust.log*，开启消息通知。
+  * 建议需要开机运行的用户使用以下命令将MentoHUST设置为daemon运行并保存输出到*{{{/tmp/mentohust.log}}}*，开启消息通知。
 {{{
 sudo mentohust -b3 -y5 -w
 }}}
