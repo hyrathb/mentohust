@@ -131,6 +131,7 @@ void V2_check(const BYTE *seed, char *final_str) {
 	md5Dig = ComputeHash(table, 144);
 	hex_to_str(md5Dig, final_str, 16, 1);
 }
+
 DWORD getVer(const char *file) {
 	FILE *fp;
 	BYTE *data = NULL;

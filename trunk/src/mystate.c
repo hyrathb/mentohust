@@ -23,7 +23,7 @@ extern const u_char STANDARD_ADDR[];
 extern char userName[];
 extern unsigned startMode;
 extern unsigned dhcpMode;
-extern u_char localMAC[], destMAC[], gateMAC[];
+extern u_char localMAC[], destMAC[];
 extern unsigned timeout;
 extern unsigned echoInterval;
 extern unsigned restartWait;
@@ -31,7 +31,12 @@ extern char dhcpScript[];
 extern pcap_t *hPcap;
 extern u_char *fillBuf;
 extern unsigned fillSize;
-extern u_int32_t pingHost, rip, gateway;
+extern u_int32_t pingHost;
+#ifndef NO_ARP
+extern u_int32_t rip, gateway;
+extern u_char gateMAC[];
+static void sendArpPacket();	/* ARP监视 */
+#endif
 
 static void setTimer(unsigned interval);	/* 设置定时器 */
 static int renewIP();	/* 更新IP */
@@ -42,7 +47,6 @@ static int sendChallengePacket();   /* 发送Md5 Challenge包 */
 static int sendEchoPacket();	/* 发送心跳包 */
 static int sendLogoffPacket();  /* 发送退出包 */
 static int waitEchoPacket();	/* 等候响应包 */
-static void sendArpPacket();	/* ARP应答 */
 
 static void setTimer(unsigned interval) /* 设置定时器 */
 {
@@ -102,8 +106,10 @@ int switchState(int type)
 			}
 			sendCount = 1;
 		}
+#ifndef NO_ARP
 		if (gateMAC[0] != 0xFE)
 			sendArpPacket();
+#endif
 		return sendEchoPacket();
 	case ID_DISCONNECT:
 		return sendLogoffPacket();
@@ -294,6 +300,7 @@ static int waitEchoPacket()
 	return 0;
 }
 
+#ifndef NO_ARP
 static void sendArpPacket()
 {
 	u_char arpPacket[0x3C] = {
@@ -319,3 +326,4 @@ static void sendArpPacket()
 	memcpy(arpPacket+0x26, &gateway, 4);
 	pcap_sendpacket(hPcap, arpPacket, 0x2A);
 }
+#endif

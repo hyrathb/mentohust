@@ -31,8 +31,10 @@ u_char *fillBuf = NULL;	/* 填充包地址 */
 int fillSize = 0;	/* 填充包大小 */
 int bufType = 0;	/*0内置xrgsu 1内置Win 2仅文件 3文件+校验*/
 u_char version[2];	/* 版本 */
+#ifndef NO_ARP
 u_int32_t rip = 0;	/* 实际IP */
 u_char gateMAC[6];	/* 网关MAC */
+#endif
 
 extern char password[];
 extern char nic[];
@@ -166,6 +168,7 @@ static int getAddress()
 	else if (startMode == 1)
 		memcpy(destMAC, RUIJIE_ADDR, 6);
 
+#ifndef NO_ARP
 	gateMAC[0] = 0xFE;
 	if (ioctl(sock, SIOCGIFADDR, &ifr) < 0)
 		printf("!! 在网卡%s上获取IP失败!\n", nic);
@@ -176,6 +179,14 @@ static int getAddress()
 	}
 	if (dhcpMode!=0 || ip==0)
 		ip = rip;
+#else
+	if (dhcpMode!=0 || ip==0) {
+		if (ioctl(sock, SIOCGIFADDR, &ifr) < 0)
+			printf("!! 在网卡%s上获取IP失败!\n", nic);
+		else
+			ip = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
+	}
+#endif
 
 	if (dhcpMode!=0 || mask==0) {
 		if (ioctl(sock, SIOCGIFNETMASK, &ifr) < 0)

@@ -456,8 +456,13 @@ static int openPcap()
 		return -1;
 	}
 	fmt = formatHex(localMAC, 6);
+#ifndef NO_ARP
 	sprintf(buf, "((ether proto 0x888e and (ether dst %s or ether dst 01:80:c2:00:00:03)) "
 			"or ether proto 0x0806) and not ether src %s", fmt, fmt);
+#else
+	sprintf(buf, "ether proto 0x888e and (ether dst %s or ether dst 01:80:c2:00:00:03) "
+			"and not ether src %s", fmt, fmt);
+#endif
 	if (pcap_compile(hPcap, &fcode, buf, 0, 0xffffffff) == -1
 			|| pcap_setfilter(hPcap, &fcode) == -1)
 	{

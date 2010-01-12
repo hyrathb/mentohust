@@ -31,12 +31,15 @@ extern u_char *fillBuf;
 extern const u_char *capBuf;
 extern unsigned startMode;
 extern unsigned dhcpMode;
+extern u_char destMAC[];
+extern int lockfd;
 #ifndef NO_NOTIFY
 extern int showNotify;
 #endif
+#ifndef NO_ARP
 extern u_int32_t rip, gateway;
-extern u_char destMAC[], gateMAC[];
-extern int lockfd;
+extern u_char gateMAC[];
+#endif
 
 static void exit_handle(void);	/* 退出回调 */
 static void sig_handle(int sig);	/* 信号回调 */
@@ -111,7 +114,9 @@ static void sig_handle(int sig)
 
 static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char *buf)
 {
+#ifndef NO_ARP
 	if (buf[0x0c]==0x88 && buf[0x0d]==0x8e) {
+#endif
 		if (memcmp(destMAC, buf+6, 6)!=0 && startMode>2)	/* 服务器MAC地址不符 */
 			return;
 		capBuf = buf;
@@ -158,6 +163,7 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 			else
 				switchState(ID_START);
 		}
+#ifndef NO_ARP
 	} else if (gateMAC[0]!=0xFE && buf[0x0c]==0x08 && buf[0x0d]==0x06) {
 		if (*(u_int32_t *)(buf+0x1c) == gateway) {
 			if (gateMAC[0] == 0xFF) {
@@ -175,6 +181,7 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 			}
 		}
 	}
+#endif
 }
 
 #ifndef MAC_OS
