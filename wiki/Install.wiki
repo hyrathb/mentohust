@@ -24,7 +24,7 @@ rpm -ivh "rpm包文件名"
 {{{
 yaourt -S mentohust
 }}}
-另外，你也可以直接下载已经编译好的软件包（目前只有[mentohust-0.3.1-1-x86_64.pkg.tar.gz x86_64平台])
+另外，你也可以直接下载已经编译好的软件包（目前只有[http://mentohust.googlecode.com/files/mentohust-0.3.1-1-x86_64.pkg.tar.gz x86_64平台]可供下载。)
 
 == 其他发行版 ==
 请自行编译安装
