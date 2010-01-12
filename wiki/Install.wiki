@@ -1,6 +1,6 @@
 本文介绍两种安装MentoHUST的方法：
-  * [install#二进制软件包 依据平台来安装]MentoHUST
-  * [install#手动编译 手动编译安装]MentoHUST
+  * 依据平台来安装MentoHUST：[Install#二进制软件包]
+  * 手动编译安装MentoHUST：[Install#手动编译]
 另外，也提供一些[install#开机运行 设置开启启动]的方法。
 
 = 二进制软件包 =
@@ -38,9 +38,9 @@ sh autogen.sh
   # 配置MentoHUST。
 目前您可以根据自己的需求启动或禁止以下特性：
 {{{
---enable-debug         Build a debug version                               
---disable-encodepass   Don't encode password                               
---disable-arp          Don't care ARP info                                 
+--enable-debug         Build a debug version
+--disable-encodepass   Don't encode password
+--disable-arp          Don't care ARP info
 --disable-notify       Don't show notification
 }}}
 对于普通PC用户，一般运行这个命令配置即可：
@@ -74,7 +74,7 @@ DAEMONS=(syslog-ng network ... @mentohust ...)
 }}}
 
 == rc.local方式 ==
-对于没有修改/etc/sudoers文件使得sudo无需密码的用户，使用上面的方法是不能实现mentohust开机自动运行的，可通过修改/etc/rc.local或者/etc/gdm/Init/Default等文件来实现，例如：
+对于没有修改/etc/sudoers文件使得sudo无需密码的用户，使用上面的方法是不能实现mentohust开机自动运行的，可通过修改*/etc/rc.local*或者*/etc/gdm/Init/Default*等文件来实现，例如：
 {{{
 sudo gedit /etc/gdm/Init/Default
 }}}
@@ -89,7 +89,7 @@ fi
 待编辑。
 
 == 小技巧 ==
-  * 建议需要开机运行的用户使用以下命令将MentoHUST设置为daemon运行并保存输出到/tmp/mentohust.log，开启消息通知。
+  * 建议需要开机运行的用户使用以下命令将MentoHUST设置为daemon运行并保存输出到*/tmp/mentohust.log*，开启消息通知。
 {{{
 sudo mentohust -b3 -y5 -w
 }}}
