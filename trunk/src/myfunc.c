@@ -177,10 +177,10 @@ static int getAddress()
 		if (gateway!=0 && (startMode%3!=2 || ((u_char *)&gateway)[3]!=0x02))
 			gateMAC[0] = 0xFF;
 	}
-	if (dhcpMode!=0 || ip==0)
+	if (dhcpMode!=0 || ip==-1)
 		ip = rip;
 #else
-	if (dhcpMode!=0 || ip==0) {
+	if (dhcpMode!=0 || ip==-1) {
 		if (ioctl(sock, SIOCGIFADDR, &ifr) < 0)
 			printf("!! 在网卡%s上获取IP失败!\n", nic);
 		else
@@ -188,7 +188,7 @@ static int getAddress()
 	}
 #endif
 
-	if (dhcpMode!=0 || mask==0) {
+	if (dhcpMode!=0 || mask==-1) {
 		if (ioctl(sock, SIOCGIFNETMASK, &ifr) < 0)
 			printf("!! 在网卡%s上获取子网掩码失败!\n", nic);
 		else

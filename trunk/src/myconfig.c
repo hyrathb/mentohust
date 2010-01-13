@@ -148,7 +148,7 @@ static int decodePass(char *dst, const char *src) {
 void initConfig(int argc, char **argv)
 {
 	int saveFlag = 0;	/* 是否需要保存参数 */
-	int exitFlag = 0;	/* 是否需要退出 */
+	int exitFlag = 0;	/* 0Nothing 1退出 2重启 */
 	int daemonMode = D_DAEMONMODE;	/* 是否后台运行 */
 
 	printf("\n欢迎使用MentoHUST\t版本: %s\n"
@@ -252,9 +252,9 @@ static int readFile(int *daemonMode)
 			bufType = 1;
 		}
 	}
-	getString(buf, "MentoHUST", "IP", "0.0.0.0", tmp, sizeof(tmp));
+	getString(buf, "MentoHUST", "IP", "255.255.255.255", tmp, sizeof(tmp));
 	ip = inet_addr(tmp);
-	getString(buf, "MentoHUST", "Mask", "0.0.0.0", tmp, sizeof(tmp));
+	getString(buf, "MentoHUST", "Mask", "255.255.255.255", tmp, sizeof(tmp));
 	mask = inet_addr(tmp);
 	getString(buf, "MentoHUST", "Gateway", "0.0.0.0", tmp, sizeof(tmp));
 	gateway = inet_addr(tmp);
@@ -290,8 +290,12 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 		else if (c == 'w')
 			*saveFlag = 1;
 		else if (c == 'k') {
-			*exitFlag = 1;
-			return;
+			if (strlen(str) > 2)
+				*exitFlag = 2;
+			else {
+				*exitFlag = 1;
+				return;
+			}
 		} else if (strlen(str) > 2) {
 			if (c == 'u')
 				strncpy(userName, str+2, sizeof(userName)-1);
@@ -350,7 +354,7 @@ static void showHelp(const char *fileName)
 	char *helpString =
 		"用法:\t%s [-选项][参数]\n"
 		"选项:\t-h 显示本帮助信息\n"
-		"\t-k 退出程序\n"
+		"\t-k -k(退出程序) 其他(重启程序)\n"
 		"\t-w 保存参数到配置文件\n"
 		"\t-u 用户名\n"
 		"\t-p 密码\n"
@@ -450,7 +454,7 @@ static int openPcap()
 {
 	char buf[PCAP_ERRBUF_SIZE], *fmt;
 	struct bpf_program fcode;
-	if ((hPcap = pcap_open_live(nic, 2048, 1, 500, buf)) == NULL)
+	if ((hPcap = pcap_open_live(nic, 2048, 1, 1000, buf)) == NULL)
 	{
 		printf("!! 打开网卡%s失败: %s\n", nic, buf);
 		return -1;
@@ -542,9 +546,10 @@ static void checkRunning(int exitFlag, int daemonMode)
 		}
 		else
 			printf("!! 没有MentoHUST正在运行！\n");
-		exit(EXIT_SUCCESS);
+		if (exitFlag == 1)
+			exit(EXIT_SUCCESS);
 	}
-	if (fl.l_type != F_UNLCK) {
+	else if (fl.l_type != F_UNLCK) {
 		printf("!! MentoHUST已经运行(PID=%d)!\n", fl.l_pid);
 		exit(EXIT_FAILURE);
 	}
