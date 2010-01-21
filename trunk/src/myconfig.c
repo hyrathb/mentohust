@@ -431,8 +431,10 @@ static void printConfig()
 	printf("** 用户名:\t%s\n", userName);
 	/* printf("** 密码:\t%s\n", password); */
 	printf("** 网卡: \t%s\n", nic);
-	printf("** 网关地址:\t%s\n", formatIP(gateway));
-	printf("** DNS地址:\t%s\n", formatIP(dns));
+	if (gateway)
+		printf("** 网关地址:\t%s\n", formatIP(gateway));
+	if (dns)
+		printf("** DNS地址:\t%s\n", formatIP(dns));
 	if (pingHost)
 		printf("** 智能重连:\t%s\n", formatIP(pingHost));
 	printf("** 认证超时:\t%d秒\n", timeout);
