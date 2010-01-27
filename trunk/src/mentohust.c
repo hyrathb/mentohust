@@ -29,8 +29,7 @@ extern pcap_t *hPcap;
 extern volatile int state;
 extern u_char *fillBuf;
 extern const u_char *capBuf;
-extern unsigned startMode;
-extern unsigned dhcpMode;
+extern unsigned startMode, dhcpMode, maxFail;
 extern u_char destMAC[];
 extern int lockfd;
 #ifndef NO_NOTIFY
@@ -114,6 +113,7 @@ static void sig_handle(int sig)
 
 static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char *buf)
 {
+	static unsigned failCount = 0;
 #ifndef NO_ARP
 	if (buf[0x0c]==0x88 && buf[0x0d]==0x8e) {
 #endif
@@ -134,6 +134,7 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 			switchState(ID_CHALLENGE);
 		else if (buf[0x0F]==0x00 && buf[0x12]==0x03) {	/* 认证成功 */
 			printf(">> 认证成功!\n");
+			failCount = 0;
 			if (!(startMode%3 == 2)) {
 				getEchoKey(buf);
 				showRuijieMsg(buf, h->caplen);
@@ -158,6 +159,10 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 				printf(">> 认证失败!\n");
 				if (startMode%3 != 2)
 					showRuijieMsg(buf, h->caplen);
+				if (maxFail && ++failCount>=maxFail) {
+					printf(">> 连续认证失败%u次，退出认证。\n", maxFail);
+					exit(EXIT_SUCCESS);
+				}
 				restart();
 			}
 			else
