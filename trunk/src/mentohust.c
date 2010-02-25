@@ -11,7 +11,7 @@
 #else
 #define HAVE_ICONV_H
 #endif
-
+#include "./gettext.h"
 #include "myconfig.h"
 #include "mystate.h"
 #include "myfunc.h"
@@ -48,6 +48,9 @@ static void showCernetMsg(const u_char *buf);	/* 显示赛尔服务器提示信�
 
 int main(int argc, char **argv)
 {
+	setlocale(LC_ALL, "");
+	textdomain(GETTEXT_PACKAGE);
+
 	atexit(exit_handle);
 	initConfig(argc, argv);
 	signal(SIGALRM, sig_handle);	/* 定时器 */
@@ -61,10 +64,13 @@ int main(int argc, char **argv)
 	else
 		switchState(ID_START);	/* 开始认证 */
 	if (-1 == pcap_loop(hPcap, -1, pcap_handle, NULL)) { /* 开始捕获数据包 */
+		//"!! Errcapturing packet, please check your network connections\n")); 
 		printf("!! 捕获数据包失败，请检查网络连接！\n");
 #ifndef NO_NOTIFY
 		if (showNotify)
-			show_notify("MentoHUST - 错误提示", "捕获数据包失败，请检查网络连接！");
+			show_notify( _("MentoHUST - error propt"),
+			 _("Failed to capture packages, please check your network connections!")); //"捕获数据包失败，请检查网络连接！");
+			
 #endif
 	}
 	exit(EXIT_FAILURE);
@@ -86,7 +92,7 @@ static void exit_handle(void)
 #ifndef NO_DYLOAD
 	free_libpcap();
 #endif
-	printf(">> 认证已退出。\n");
+	printf(_(">> Auth exit.\n"));
 }
 
 static void sig_handle(int sig)
