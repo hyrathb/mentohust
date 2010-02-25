@@ -1,4 +1,5 @@
-SUBDIRS = src
+SUBDIRS = po src m4
+
 
 dist_doc_DATA = README
 
@@ -6,7 +7,7 @@ dist_man_MANS = mentohust.1
 
 SPEC = mentohust.spec
 
-EXTRA_DIST = $(SPEC) debian/changelog debian/compat debian/control debian/copyright debian/rules debian/watch
+EXTRA_DIST = config.rpath m4/ChangeLog  $(SPEC) debian/changelog debian/compat debian/control debian/copyright debian/rules debian/watch
 
 rpm: dist-gzip
 	mkdir -p ~/rpmbuild/SOURCES/
@@ -19,3 +20,5 @@ rpm: dist-gzip
 
 deb: debian/rules
 	dpkg-buildpackage -rfakeroot -uc -b -d
+
+ACLOCAL_AMFLAGS = -I m4

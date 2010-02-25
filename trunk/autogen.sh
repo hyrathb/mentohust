@@ -1,8 +1,8 @@
 #! /bin/sh
 
 set -x
-
-aclocal
+autopoint
+aclocal -I m4
 autoheader
 automake --add-missing
 autoconf

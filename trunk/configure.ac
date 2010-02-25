@@ -4,9 +4,10 @@
 AC_PREREQ([2.63])
 AC_INIT([mentohust], [0.3.1], [http://code.google.com/p/mentohust/issues/list])
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([-Wall])
 AC_CONFIG_SRCDIR([src/myconfig.h])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.
 AS_IF([test "x$prefix" = "xNONE"], [prefix="/usr"])
@@ -16,6 +17,15 @@ AC_ARG_ENABLE([debug], [AC_HELP_STRING([ --enable-debug], [Build a debug version
 
 AC_PROG_CC
 AC_C_BIGENDIAN
+
+GETTEXT_PACKAGE="$PACKAGE_NAME"
+AC_SUBST(GETTEXT_PACKAGE)
+AC_SUBST(prefix)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Define to the read-only architecture-independent data directory.])
+
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION(0.16.1)
+
 
 AC_ARG_ENABLE([encodepass], [AC_HELP_STRING([ --disable-encodepass], [Don't encode password])],
               [], [enable_encodepass="yes"])
@@ -58,7 +68,12 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_CHECK_FUNCS([atexit memmove memset socket strrchr])
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([
+		Makefile
+		src/Makefile
+		po/Makefile.in
+		mentohust.spec
+		m4/Makefile])
 
 AC_MSG_RESULT([config result: host($host_os) pcap($with_pcap) notify($enable_notify) encode($enable_encodepass) arp($enable_arp)])
 AC_OUTPUT
