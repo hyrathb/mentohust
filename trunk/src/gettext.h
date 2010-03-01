@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4; -*- */
 
 #ifndef _LIBGETTEXT_H
 #define _LIBGETTEXT_H 1

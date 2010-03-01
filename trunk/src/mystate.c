@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4; -*- */
 /*
 * Copyright (C) 2009, HustMoon Studio
 *

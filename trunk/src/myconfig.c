@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4; -*- */
 /*
 * Copyright (C) 2009, HustMoon Studio
 *
@@ -161,10 +162,12 @@ void initConfig(int argc, char **argv)
 	readArg(argc, argv, &saveFlag, &exitFlag, &daemonMode);
 #ifndef NO_NOTIFY
 	if (showNotify) {
+		seteuid(getuid());
 		if (load_libnotify() == -1)
 			showNotify = 0;
 		else
 			set_timeout(1000 * showNotify);
+		seteuid(0);
 	}
 #endif
 #ifndef NO_DYLOAD

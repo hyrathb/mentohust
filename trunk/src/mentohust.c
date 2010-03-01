@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4; -*- */
 /*
 * Copyright (C) 2009, HustMoon Studio
 *
@@ -11,7 +12,7 @@
 #else
 #define HAVE_ICONV_H
 #endif
-#include "./gettext.h"
+#include "gettext.h"
 #include "myconfig.h"
 #include "mystate.h"
 #include "myfunc.h"
