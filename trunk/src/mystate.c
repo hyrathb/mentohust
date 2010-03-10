@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4; -*- */
 /*
 * Copyright (C) 2009, HustMoon Studio
 *
@@ -10,6 +11,7 @@
 #include "myfunc.h"
 #include "dlfunc.h"
 #include <string.h>
+#include <stdlib.h>
 #include <netinet/in.h>
 
 #define MAX_SEND_COUNT		3	/* 最大超时次数 */
@@ -23,8 +25,7 @@ extern const u_char STANDARD_ADDR[];
 extern char userName[];
 extern unsigned startMode;
 extern unsigned dhcpMode;
-extern u_char localMAC[];
-extern u_char destMAC[];
+extern u_char localMAC[], destMAC[];
 extern unsigned timeout;
 extern unsigned echoInterval;
 extern unsigned restartWait;
@@ -33,6 +34,11 @@ extern pcap_t *hPcap;
 extern u_char *fillBuf;
 extern unsigned fillSize;
 extern u_int32_t pingHost;
+#ifndef NO_ARP
+extern u_int32_t rip, gateway;
+extern u_char gateMAC[];
+static void sendArpPacket();	/* ARP监视 */
+#endif
 
 static void setTimer(unsigned interval);	/* 设置定时器 */
 static int renewIP();	/* 更新IP */
@@ -102,6 +108,10 @@ int switchState(int type)
 			}
 			sendCount = 1;
 		}
+#ifndef NO_ARP
+		if (gateMAC[0] != 0xFE)
+			sendArpPacket();
+#endif
 		return sendEchoPacket();
 	case ID_DISCONNECT:
 		return sendLogoffPacket();
@@ -291,3 +301,31 @@ static int waitEchoPacket()
 		setTimer(echoInterval);
 	return 0;
 }
+
+#ifndef NO_ARP
+static void sendArpPacket()
+{
+	u_char arpPacket[0x3C] = {
+		0xff,0xff,0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x08,0x06,0x00,0x01,
+		0x08,0x00,0x06,0x04,0x00};
+
+	if (gateMAC[0] != 0xFF) {
+		memcpy(arpPacket, gateMAC, 6);
+		memcpy(arpPacket+0x06, localMAC, 6);
+		arpPacket[0x15]=0x02;
+		memcpy(arpPacket+0x16, localMAC, 6);
+		memcpy(arpPacket+0x1c, &rip, 4);
+		memcpy(arpPacket+0x20, gateMAC, 6);
+		memcpy(arpPacket+0x26, &gateway, 4);
+		pcap_sendpacket(hPcap, arpPacket, 0x3C);
+	}
+	memset(arpPacket, 0xFF, 6);
+	memcpy(arpPacket+0x06, localMAC, 6);
+	arpPacket[0x15]=0x01;
+	memcpy(arpPacket+0x16, localMAC, 6);
+	memcpy(arpPacket+0x1c, &rip, 4);
+	memset(arpPacket+0x20, 0, 6);
+	memcpy(arpPacket+0x26, &gateway, 4);
+	pcap_sendpacket(hPcap, arpPacket, 0x2A);
+}
+#endif

@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4; -*- */
 /*
 * Copyright (C) 2009, HustMoon Studio
 *
@@ -33,6 +34,7 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 #define D_STARTMODE			0	/* 默认组播模式 */
 #define D_DHCPMODE			0	/* 默认DHCP模式 */
 #define D_DAEMONMODE		0	/* 默认daemon模式 */
+#define D_MAXFAIL			0	/* 默认允许失败次数 */
 
 static const char *D_DHCPSCRIPT = "dhclient";	/* 默认DHCP脚本 */
 static const char *CFG_FILE = "/etc/mentohust.conf";	/* 配置文件 */
@@ -46,6 +48,7 @@ int showNotify = D_SHOWNOTIFY;	/* 显示通知 */
 #endif
 
 extern int bufType;	/*0内置xrgsu 1内置Win 2仅文件 3文件+校验*/
+extern u_char version[];	/* 版本 */
 char userName[ACCOUNT_SIZE] = "";	/* 用户名 */
 char password[ACCOUNT_SIZE] = "";	/* 密码 */
 char nic[NIC_SIZE] = "";	/* 网卡名 */
@@ -63,6 +66,7 @@ unsigned echoInterval = D_ECHOINTERVAL;	/* 心跳间隔 */
 unsigned restartWait = D_RESTARTWAIT;	/* 失败等待 */
 unsigned startMode = D_STARTMODE;	/* 组播模式 */
 unsigned dhcpMode = D_DHCPMODE;	/* DHCP模式 */
+unsigned maxFail = D_MAXFAIL;	/* 允许失败次数 */
 pcap_t *hPcap = NULL;	/* Pcap句柄 */
 int lockfd = -1;	/* 锁文件描述符 */
 
@@ -147,21 +151,23 @@ static int decodePass(char *dst, const char *src) {
 void initConfig(int argc, char **argv)
 {
 	int saveFlag = 0;	/* 是否需要保存参数 */
-	int exitFlag = 0;	/* 是否需要退出 */
+	int exitFlag = 0;	/* 0Nothing 1退出 2重启 */
 	int daemonMode = D_DAEMONMODE;	/* 是否后台运行 */
 
 	printf("\n欢迎使用MentoHUST\t版本: %s\n"
-			"Copyright (C) 2009 HustMoon Studio\n"
+			"Copyright (C) 2009-2010 HustMoon Studio\n"
 			"人到华中大，有甜亦有辣。明德厚学地，求是创新家。\n"
 			"Bug report to %s\n\n", VERSION, PACKAGE_BUGREPORT);
 	saveFlag = (readFile(&daemonMode)==0 ? 0 : 1);
 	readArg(argc, argv, &saveFlag, &exitFlag, &daemonMode);
 #ifndef NO_NOTIFY
 	if (showNotify) {
+		seteuid(getuid());
 		if (load_libnotify() == -1)
 			showNotify = 0;
 		else
 			set_timeout(1000 * showNotify);
+		seteuid(0);
 	}
 #endif
 #ifndef NO_DYLOAD
@@ -242,9 +248,18 @@ static int readFile(int *daemonMode)
 	getString(buf, "MentoHUST", "Nic", "", nic, sizeof(nic));
 	getString(buf, "MentoHUST", "Datafile", "", dataFile, sizeof(dataFile));
 	getString(buf, "MentoHUST", "DhcpScript", "", dhcpScript, sizeof(dhcpScript));
-	getString(buf, "MentoHUST", "IP", "0.0.0.0", tmp, sizeof(tmp));
+	getString(buf, "MentoHUST", "Version", "", tmp, sizeof(tmp));
+	if (strlen(tmp) >= 3) {
+		unsigned ver[2];
+		if (sscanf(tmp, "%u.%u", ver, ver+1)!=EOF && ver[0]!=0) {
+			version[0] = ver[0];
+			version[1] = ver[1];
+			bufType = 1;
+		}
+	}
+	getString(buf, "MentoHUST", "IP", "255.255.255.255", tmp, sizeof(tmp));
 	ip = inet_addr(tmp);
-	getString(buf, "MentoHUST", "Mask", "0.0.0.0", tmp, sizeof(tmp));
+	getString(buf, "MentoHUST", "Mask", "255.255.255.255", tmp, sizeof(tmp));
 	mask = inet_addr(tmp);
 	getString(buf, "MentoHUST", "Gateway", "0.0.0.0", tmp, sizeof(tmp));
 	gateway = inet_addr(tmp);
@@ -261,6 +276,7 @@ static int readFile(int *daemonMode)
 	showNotify = getInt(buf, "MentoHUST", "ShowNotify", D_SHOWNOTIFY) % 21;
 #endif
 	*daemonMode = getInt(buf, "MentoHUST", "DaemonMode", D_DAEMONMODE) % 4;
+	maxFail = getInt(buf, "MentoHUST", "MaxFail", D_MAXFAIL);
 	free(buf);
 	return 0;
 }
@@ -280,8 +296,12 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 		else if (c == 'w')
 			*saveFlag = 1;
 		else if (c == 'k') {
-			*exitFlag = 1;
-			return;
+			if (strlen(str) > 2)
+				*exitFlag = 2;
+			else {
+				*exitFlag = 1;
+				return;
+			}
 		} else if (strlen(str) > 2) {
 			if (c == 'u')
 				strncpy(userName, str+2, sizeof(userName)-1);
@@ -293,6 +313,18 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 				strncpy(dataFile, str+2, sizeof(dataFile)-1);
 			else if (c == 'c')
 				strncpy(dhcpScript, str+2, sizeof(dhcpScript)-1);
+			else if (c=='v' && strlen(str+2)>=3) {
+				unsigned ver[2];
+				if (sscanf(str+2, "%u.%u", ver, ver+1) != EOF) {
+					if (ver[0] == 0)
+						bufType = 0;
+					else {
+						version[0] = ver[0];
+						version[1] = ver[1];
+						bufType = 1;
+					}
+				}
+			}
 			else if (c == 'i')
 				ip = inet_addr(str+2);
 			else if (c == 'm')
@@ -319,6 +351,8 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 #endif
 			else if (c == 'b')
 				*daemonMode = atoi(str+2) % 4;
+			else if (c == 'l')
+				maxFail = atoi(str+2);
 		}
 	}
 }
@@ -328,7 +362,7 @@ static void showHelp(const char *fileName)
 	char *helpString =
 		"用法:\t%s [-选项][参数]\n"
 		"选项:\t-h 显示本帮助信息\n"
-		"\t-k 退出程序\n"
+		"\t-k -k(退出程序) 其他(重启程序)\n"
 		"\t-w 保存参数到配置文件\n"
 		"\t-u 用户名\n"
 		"\t-p 密码\n"
@@ -341,16 +375,18 @@ static void showHelp(const char *fileName)
 		"\t-t 认证超时(秒)[默认8]\n"
 		"\t-e 响应间隔(秒)[默认30]\n"
 		"\t-r 失败等待(秒)[默认15]\n"
+		"\t-l 允许失败次数[默认0，表示无限制]\n"
 		"\t-a 组播地址: 0(标准) 1(锐捷) 2(赛尔) [默认0]\n"
 		"\t-d DHCP方式: 0(不使用) 1(二次认证) 2(认证后) 3(认证前) [默认0]\n"
-		"\t-b 是否后台运行: 0(否) 1(是，关闭输出) 2(是，保留输出) 3(是，输出到文件) ［默认0］\n"
+		"\t-b 是否后台运行: 0(否) 1(是，关闭输出) 2(是，保留输出) 3(是，输出到文件) [默认0]\n"
 #ifndef NO_NOTIFY
-		"\t-y 是否显示通知: 0(否) 1～20(是)[默认5］\n"
+		"\t-y 是否显示通知: 0(否) 1~20(是) [默认5]\n"
 #endif
+		"\t-v 客户端版本号[默认0.00表示兼容xrgsu]\n"
 		"\t-f 自定义数据文件[默认不使用]\n"
 		"\t-c DHCP脚本[默认dhclient]\n"
-		"例如:\t%s -uusername -ppassword -neth0 -i192.168.0.1 -m255.255.255.0 -g0.0.0.0 -s0.0.0.0 -o0.0.0.0 -t8 -e30 -r15 -a0 -d1 -b0 -fdefault.mpf -cdhclient\n"
-		"使用时请确保是以root权限运行！\n\n";
+		"例如:\t%s -uusername -ppassword -neth0 -i192.168.0.1 -m255.255.255.0 -g0.0.0.0 -s0.0.0.0 -o0.0.0.0 -t8 -e30 -r15 -a0 -d1 -b0 -v4.10 -fdefault.mpf -cdhclient\n"
+		"注意：使用时请确保是以root权限运行！\n\n";
 	printf(helpString, fileName, fileName);
 	exit(EXIT_SUCCESS);
 }
@@ -403,14 +439,17 @@ static void printConfig()
 	char *dhcp[] = {"不使用", "二次认证", "认证后", "认证前"};
 	printf("** 用户名:\t%s\n", userName);
 	/* printf("** 密码:\t%s\n", password); */
-	printf("** 网卡:\t%s\n", nic);
-	printf("** 网关地址:\t%s\n", formatIP(gateway));
-	printf("** DNS地址:\t%s\n", formatIP(dns));
+	printf("** 网卡: \t%s\n", nic);
+	if (gateway)
+		printf("** 网关地址:\t%s\n", formatIP(gateway));
+	if (dns)
+		printf("** DNS地址:\t%s\n", formatIP(dns));
 	if (pingHost)
 		printf("** 智能重连:\t%s\n", formatIP(pingHost));
-	printf("** 认证超时:\t%d秒\n", timeout);
-	printf("** 响应间隔:\t%d秒\n", echoInterval);
-	printf("** 失败等待:\t%d秒\n", restartWait);
+	printf("** 认证超时:\t%u秒\n", timeout);
+	printf("** 响应间隔:\t%u秒\n", echoInterval);
+	printf("** 失败等待:\t%u秒\n", restartWait);
+	printf("** 允许失败:\t%u次\n", maxFail);
 	printf("** 组播地址:\t%s\n", addr[startMode]);
 	printf("** DHCP方式:\t%s\n", dhcp[dhcpMode]);
 #ifndef NO_NOTIFY
@@ -427,14 +466,19 @@ static int openPcap()
 {
 	char buf[PCAP_ERRBUF_SIZE], *fmt;
 	struct bpf_program fcode;
-	if ((hPcap = pcap_open_live(nic, 2048, 1, 500, buf)) == NULL)
+	if ((hPcap = pcap_open_live(nic, 2048, 1, 1000, buf)) == NULL)
 	{
 		printf("!! 打开网卡%s失败: %s\n", nic, buf);
 		return -1;
 	}
 	fmt = formatHex(localMAC, 6);
-	sprintf(buf, "ether proto 0x888e and not ether src %s and "
-		"(ether dst %s or ether dst 01:80:c2:00:00:03)", fmt, fmt);
+#ifndef NO_ARP
+	sprintf(buf, "((ether proto 0x888e and (ether dst %s or ether dst 01:80:c2:00:00:03)) "
+			"or ether proto 0x0806) and not ether src %s", fmt, fmt);
+#else
+	sprintf(buf, "ether proto 0x888e and (ether dst %s or ether dst 01:80:c2:00:00:03) "
+			"and not ether src %s", fmt, fmt);
+#endif
 	if (pcap_compile(hPcap, &fcode, buf, 0, 0xffffffff) == -1
 			|| pcap_setfilter(hPcap, &fcode) == -1)
 	{
@@ -448,19 +492,25 @@ static int openPcap()
 static void saveConfig(int daemonMode)
 {
 	char *buf = loadFile(CFG_FILE);
-	if (buf == NULL)
-	{
+	if (buf == NULL) {
 		buf = (char *)malloc(1);
 		buf[0] = '\0';
 	}
 	setString(&buf, "MentoHUST", "DhcpScript", dhcpScript);
 	setString(&buf, "MentoHUST", "DataFile", dataFile);
+	if (bufType != 0) {
+		char ver[10];
+		sprintf(ver, "%u.%u", version[0], version[1]);
+		setString(&buf, "MentoHUST", "Version", ver);
+	} else
+		setString(&buf, "MentoHUST", "Version", "0.00");
 #ifndef NO_NOTIFY
 	setInt(&buf, "MentoHUST", "ShowNotify", showNotify);
 #endif
 	setInt(&buf, "MentoHUST", "DaemonMode", daemonMode);
 	setInt(&buf, "MentoHUST", "DhcpMode", dhcpMode);
 	setInt(&buf, "MentoHUST", "StartMode", startMode);
+	setInt(&buf, "MentoHUST", "MaxFail", maxFail);
 	setInt(&buf, "MentoHUST", "RestartWait", restartWait);
 	setInt(&buf, "MentoHUST", "EchoInterval", echoInterval);
 	setInt(&buf, "MentoHUST", "Timeout", timeout);
@@ -485,7 +535,7 @@ static void saveConfig(int daemonMode)
 	free(buf);
 }
 
-static void checkRunning(int exitFlag, int daemonMode)	/* 这里是参考zRuijie，谁让我是Linux门外汉呢？ */
+static void checkRunning(int exitFlag, int daemonMode)
 {
 	struct flock fl;
 	lockfd = open (LOCK_FILE, O_RDWR|O_CREAT, LOCKMODE);
@@ -509,9 +559,10 @@ static void checkRunning(int exitFlag, int daemonMode)	/* 这里是参考zRuijie
 		}
 		else
 			printf("!! 没有MentoHUST正在运行！\n");
-		exit(EXIT_SUCCESS);
+		if (exitFlag == 1)
+			exit(EXIT_SUCCESS);
 	}
-	if (fl.l_type != F_UNLCK) {
+	else if (fl.l_type != F_UNLCK) {
 		printf("!! MentoHUST已经运行(PID=%d)!\n", fl.l_pid);
 		exit(EXIT_FAILURE);
 	}

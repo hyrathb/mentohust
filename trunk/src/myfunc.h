@@ -8,9 +8,7 @@
 #ifndef HUSTMOON_MYFUNC_H
 #define HUSTMOON_MYFUNC_H
 
-#include <stdlib.h>
-
-typedef unsigned char u_char;
+#include <sys/types.h>
 
 char *formatIP(u_int32_t ip);	/* 格式化IP */
 char *formatHex(const void *buf, int length);	/* 格式化成十六进制形式 */

@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4; -*- */
 /*
 * Copyright (C) 2009, HustMoon Studio
 *
@@ -10,6 +11,8 @@
 #include "mycheck.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <netinet/in.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -25,12 +28,16 @@ const u_char STANDARD_ADDR[] = {0x01,0x80,0xC2,0x00,0x00,0x03};
 const u_char RUIJIE_ADDR[] = {0x01,0xD0,0xF8,0x00,0x00,0x03};
 static const char *DATAFILE = "/etc/mentohust/";	/* 默认数据文件(目录) */
 
-static u_char version[2];	/* 锐捷版本号 */
 static int dataOffset;	/* 抓包偏移 */
 static u_int32_t echoKey = 0, echoNo = 0;	/* Echo阶段所需 */
 u_char *fillBuf = NULL;	/* 填充包地址 */
 int fillSize = 0;	/* 填充包大小 */
-int bufType;	/*0内置xrgsu 1内置Win 2仅文件 3文件+校验*/
+int bufType = 0;	/*0内置xrgsu 1内置Win 2仅文件 3文件+校验*/
+u_char version[2];	/* 版本 */
+#ifndef NO_ARP
+u_int32_t rip = 0;	/* 实际IP */
+u_char gateMAC[6];	/* 网关MAC */
+#endif
 
 extern char password[];
 extern char nic[];
@@ -107,6 +114,7 @@ static int getVersion() {
 	p = (char *)&ver;
 	version[0] = p[2];
 	version[1] = p[0];
+	bufType = 1;
 	return 0;
 }
 
@@ -114,7 +122,7 @@ void newBuffer()
 {
 	if (dataFile[0] == '\0')
 		strcpy(dataFile, DATAFILE);
-	bufType = getVersion() ? 0 : 1;
+	getVersion();
 	if (checkFile() == 0)
 		bufType += 2;
 	else fillSize = (bufType==0 ? 0x80 : 0x1d7);
@@ -163,16 +171,27 @@ static int getAddress()
 	else if (startMode == 1)
 		memcpy(destMAC, RUIJIE_ADDR, 6);
 
-	if (dhcpMode!=0 || ip==0)
-	{
+#ifndef NO_ARP
+	gateMAC[0] = 0xFE;
+	if (ioctl(sock, SIOCGIFADDR, &ifr) < 0)
+		printf("!! 在网卡%s上获取IP失败!\n", nic);
+	else {
+		rip = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
+		if (gateway!=0 && (startMode%3!=2 || ((u_char *)&gateway)[3]!=0x02))
+			gateMAC[0] = 0xFF;
+	}
+	if (dhcpMode!=0 || ip==-1)
+		ip = rip;
+#else
+	if (dhcpMode!=0 || ip==-1) {
 		if (ioctl(sock, SIOCGIFADDR, &ifr) < 0)
 			printf("!! 在网卡%s上获取IP失败!\n", nic);
 		else
 			ip = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
 	}
+#endif
 
-	if (dhcpMode!=0 || mask==0)
-	{
+	if (dhcpMode!=0 || mask==-1) {
 		if (ioctl(sock, SIOCGIFNETMASK, &ifr) < 0)
 			printf("!! 在网卡%s上获取子网掩码失败!\n", nic);
 		else
@@ -396,7 +415,7 @@ static int Check(const u_char *md5Seed)	/* 客户端校验 */
 {
 	char final_str[129];
 	int value;
-	printf("** 客户端版本:%d.%d 适用:%s 类型:%d\n", fillBuf[0x3B], fillBuf[0x3C], fillBuf[0x3D]?"Linux":"Windows", fillBuf[0x3E]);
+	printf("** 客户端版本:\t%d.%d\n", fillBuf[0x3B], fillBuf[0x3C]);
 	printf("** MD5种子:\t%s\n", formatHex(md5Seed, 16));
 	value = check_init(dataFile);
 	if (value == -1) {
@@ -458,7 +477,7 @@ void fillCernetAddr(u_char *buf)
 	memset(buf+0x24, 0, 4);	/* memcpy(buf+0x24, &dns, 4); */
 }
 
-int isOnline()	/* 参考了ruijieclient */
+int isOnline()
 {
 	u_char echoPacket[] =
 	{
