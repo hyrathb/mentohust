@@ -1,0 +1,13 @@
+Source: mentohust
+Section: net
+Priority: optional
+Maintainer: HustMoon <mentohust@ehust.co.cc>
+Build-Depends: debhelper (>= 7), autotools-dev
+Standards-Version: 3.8.1
+Homepage: http://code.google.com/p/mentohust/
+
+Package: mentohust
+Architecture: any
+Depends: libpcap0.8 | libpcap0.9 | libpcap1.0 | libpcap1
+Description: A Ruijie and Cernet supplicant on Linux and MacOS from HustMoon Studio
+ See /usr/share/doc/mentohust/README for more information.
