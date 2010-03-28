@@ -8,6 +8,9 @@ AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/myconfig.h])
 AC_CONFIG_HEADERS([config.h])
 
+m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+
+
 # Checks for programs.
 AS_IF([test "x$prefix" = "xNONE"], [prefix="/usr"])
 AC_ARG_ENABLE([debug], [AC_HELP_STRING([ --enable-debug], [Build a debug version])],
