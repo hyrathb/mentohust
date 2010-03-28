@@ -1,4 +1,6 @@
-SUBDIRS = src
+ACLOCAL_AMFLAGS = -I m4
+
+SUBDIRS = src po
 
 dist_doc_DATA = README
 

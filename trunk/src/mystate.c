@@ -7,6 +7,12 @@
 * 作	者：HustMoon@BYHH
 * 邮	箱：www.ehust@gmail.com
 */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "i18n.h"
 #include "mystate.h"
 #include "myfunc.h"
 #include "dlfunc.h"

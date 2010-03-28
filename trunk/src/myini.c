@@ -7,6 +7,12 @@
 * 作	者：HustMoon@BYHH
 * 修	改：2009.10.8
 */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "i18n.h"
 #include "myini.h"
 #include <stdio.h>
 #include <string.h>
