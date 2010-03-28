@@ -73,7 +73,7 @@ AC_CHECK_HEADERS([iconv.h arpa/inet.h fcntl.h netinet/in.h stdint.h stdlib.h str
 # Checks for library functions.
 AC_CHECK_FUNCS([atexit memmove memset socket strrchr])
 
-AC_CONFIG_FILES([Makefile po/Makefile.in src/Makefile])
+AC_CONFIG_FILES([Makefile po/Makefile.in src/Makefile mentohust.spec])
 
 AC_MSG_RESULT([config result: host($host_os) pcap($with_pcap) notify($enable_notify) encode($enable_encodepass) arp($enable_arp)])
 AC_OUTPUT
