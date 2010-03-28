@@ -8,12 +8,18 @@
 * 邮	箱：www.ehust@gmail.com
 */
 
+
 /*
  * modified by shilianggoo@gmail.com 2014
  * add NEED_LOGOUT, fix permission problems
  * in some secure setuid shebang implemention
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "i18n.h"
 #include "mystate.h"
 #include "myfunc.h"
 #include "dlfunc.h"

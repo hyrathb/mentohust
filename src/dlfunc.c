@@ -8,6 +8,12 @@
 * 邮	箱：www.ehust@gmail.com
 * 日	期：2009.11.11
 */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "i18n.h"
 #include "dlfunc.h"
 
 #ifndef NO_DYLOAD
