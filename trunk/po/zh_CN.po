@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mentohust 0.3.1\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/mentohust/issues/list\n"
-"POT-Creation-Date: 2010-03-29 05:04+0800\n"
+"POT-Creation-Date: 2010-03-29 05:12+0800\n"
 "PO-Revision-Date: 2010-03-29 04:49+0800\n"
 "Last-Translator:  <microcaicai@gmail.com>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -42,10 +42,36 @@ msgstr "!! 初始化libnotify失败。\n"
 msgid "!! Failed to capture package, please check network connections!\n"
 msgstr "!! 捕获数据包失败，请检查网络连接！\n"
 
-#: src/mentohust.c:81
+#: src/mentohust.c:81 src/myconfig.c:184 src/myconfig.c:196
 msgid "MentoHUST - Error Tips"
 msgstr "MentoHUST - 错误提示"
 
 #: src/mentohust.c:81
 msgid "Failed to capture package, please check network connections!"
 msgstr "捕获数据包失败，请检查网络连接！"
+
+#: src/myconfig.c:158
+#, c-format
+msgid ""
+"\n"
+" Welcome to use MentoHUST\t Version: %s\n"
+"Copyright (C) 2009-2010 HustMoon Studio\n"
+"人到华中大，有甜亦有辣。明德厚学地，求是创新家。\n"
+"Bug report to %s\n"
+"\n"
+msgstr ""
+"\n"
+" 欢迎使用MentoHUST\t版本: %s\n"
+"Copyright (C) 2009-2010 HustMoon Studio\n"
+"人到华中大，有甜亦有辣。明德厚学地，求是创新家。\n"
+"Bug 报告到 to %s\n"
+"\n"
+
+#: src/myconfig.c:184
+#, fuzzy
+msgid "Failed to load libpacp, please check its existence!"
+msgstr "载入libpcap失败, 请检查该库文件！"
+
+#: src/myconfig.c:196
+msgid "Nic not found!"
+msgstr "找不到网卡！"
