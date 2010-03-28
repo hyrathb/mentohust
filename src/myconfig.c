@@ -14,6 +14,7 @@ static const char *VERSION = "0.3.1";
 static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issues/list";
 #endif
 
+#include "i18n.h"
 #include "myconfig.h"
 #include "myini.h"
 #include "myfunc.h"

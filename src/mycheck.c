@@ -6,6 +6,11 @@
 * 摘	要：客户端校验算法
 * 作	者：kkHAIKE & HustMoon
 */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "i18n.h"
 #include "mycheck.h"
 #include "md5.h"
 #include <stdio.h>

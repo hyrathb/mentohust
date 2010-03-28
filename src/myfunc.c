@@ -6,6 +6,11 @@
 * 摘	要：认证相关算法及方法
 * 作	者：HustMoon@BYHH
 */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "i18n.h"
 #include "myfunc.h"
 #include "md5.h"
 #include "mycheck.h"

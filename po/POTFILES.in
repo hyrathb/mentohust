@@ -1,0 +1,7 @@
+src/dlfunc.c
+src/mentohust.c
+src/mycheck.c
+src/myconfig.c
+src/myfunc.c
+src/myini.c
+src/mystate.c
