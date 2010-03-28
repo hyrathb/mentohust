@@ -8,7 +8,7 @@ dist_man_MANS = mentohust.1
 
 SPEC = mentohust.spec
 
-EXTRA_DIST = $(SPEC) debian/changelog debian/compat debian/control debian/copyright debian/rules debian/watch
+EXTRA_DIST = m4 $(SPEC) debian/changelog debian/compat debian/control debian/copyright debian/rules debian/watch
 
 rpm: dist-gzip
 	mkdir -p ~/rpmbuild/SOURCES/
