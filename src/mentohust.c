@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 	setlocale(LC_ALL, "");
 	textdomain(GETTEXT_PACKAGE);
 
-#ifdef G_OS_WIN32
+#ifdef WIN32
 	{
 		char realpath_str[1024];
 		bindtextdomain(GETTEXT_PACKAGE,realpath(argv[0],realpath_str));
