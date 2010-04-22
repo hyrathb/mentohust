@@ -6,6 +6,9 @@
 #ifndef HUSTMOON_DLFUNC_H
 #define HUSTMOON_DLFUNC_H
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include <stdio.h>
 #include <sys/time.h>
 
@@ -71,4 +74,3 @@ void show_notify(const char *summary, char *body);	/* 显示通知:概要、正�
 #endif	/* NO_NOTIFY */
 
 #endif	/* HUSTMOON_DLFUNC_H */
-
