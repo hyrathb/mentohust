@@ -8,13 +8,8 @@
 * 邮	箱：www.ehust@gmail.com
 * 日	期：2009.11.11
 */
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "i18n.h"
 #include "dlfunc.h"
+#include "i18n.h"
 
 #ifndef NO_DYLOAD
 #include <dlfcn.h>
@@ -47,8 +42,7 @@ int load_libpcap(void) {
 		error = dlerror();
 	}
 	if (libpcap == NULL) {
-		printf(_("!!Failed to open libpcap, please check its existence.\n"));
-		//printf("!! 打开libpcap失败，请检查是否已安装该库文件。\n");
+		printf(_("!! 打开libpcap失败，请检查是否已安装该库文件。\n"));
 		return -1;
 	}
 	if ((pcap_findalldevs = dlsym(libpcap, "pcap_findalldevs"), error = dlerror()) != NULL
@@ -62,8 +56,7 @@ int load_libpcap(void) {
 		|| (pcap_close = dlsym(libpcap, "pcap_close"), error = dlerror()) != NULL
 		|| (pcap_breakloop = dlsym(libpcap, "pcap_breakloop"), error = dlerror()) != NULL
 		|| (pcap_sendpacket = dlsym(libpcap, "pcap_sendpacket"), error = dlerror()) != NULL) {
-		printf(_("!! Failed To Get libpcap function : %s\n"), error);
-		//printf("!! 从libpcap获取函数失败: %s\n", error);
+		printf(_("!! 从libpcap获取函数失败: %s\n"), error);
 		free_libpcap();
 		return -1;
 	}
@@ -112,8 +105,7 @@ int load_libnotify(void) {
 		error = dlerror();
 	}
 	if (libnotify == NULL) {
-		printf(_("!! cannot load libnotify, please check its exitence.\n"));
-		//printf("!! 打开libnotify失败，请检查是否已安装该库文件。\n");
+		printf(_("!! 打开libnotify失败，请检查是否已安装该库文件。\n"));
 		return -1;
 	}
 	if ((notify_init = dlsym(libnotify, "notify_init"), error = dlerror()) != NULL
@@ -121,14 +113,12 @@ int load_libnotify(void) {
 		|| (notify_notification_show = dlsym(libnotify, "notify_notification_show"), error = dlerror()) != NULL
 		|| (notify_notification_update = dlsym(libnotify, "notify_notification_update"), error = dlerror()) != NULL
 		|| (notify_notification_set_timeout = dlsym(libnotify, "notify_notification_set_timeout"), error = dlerror()) != NULL) {
-		printf(_("!! Failed To Get libnotify function : %s\n"), error);
-		//printf("!! 从libnotify获取函数失败: %s\n", error);
+		printf(_("!! 从libnotify获取函数失败: %s\n"), error);
 		free_libnotify();
 		return -1;
 	}
 	if (!notify_init("mentohust")) {
-		printf(_("!! Uable to initlize libnotify.\n"));
-		//printf("!! 初始化libnotify失败。\n");
+		printf(_("!! 初始化libnotify失败。\n"));
 		free_libnotify();
 		return -1;
 	}
@@ -161,4 +151,3 @@ void show_notify(const char *summary, char *body) {
 }
 
 #endif	/* NO_NOTIFY */
-
