@@ -1,5 +1,5 @@
+#summary 常见的问题
 #labels Featured,Phase-QA
-#Frequently Asked Questions
 
 ==MentoHUST与Mento Supplicant和mystar的关系？==
  * 最初的MentoHUST是在Mento Supplicant V3.8版的基础上修改的，在第二个版本中加入了DHCP功能以及Soar的客户端校验并简化了Alog、Blog两个算法，再后来对于Soar的客户端校验算法做了改进，对于认证流程也做了修改，MentoHUST与原有Mento的差异越来越大。总的来说，可以把MentoHUST看做对Mento的继承与发展。
