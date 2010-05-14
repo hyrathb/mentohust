@@ -64,8 +64,9 @@ int main(int argc, char **argv)
 	if (-1 == pcap_loop(hPcap, -1, pcap_handle, NULL)) { /* 开始捕获数据包 */
 		printf(_("!! 捕获数据包失败，请检查网络连接！\n"));
 #ifndef NO_NOTIFY
-		if (showNotify)
-			show_notify(_("MentoHUST - 错误提示"), _("捕获数据包失败，请检查网络连接！"));
+		if (showNotify && show_notify(_("MentoHUST - 错误提示"),
+			_("捕获数据包失败，请检查网络连接！"), 1000*showNotify) < 0)
+			showNotify = 0;
 #endif
 	}
 	exit(EXIT_FAILURE);
@@ -99,8 +100,9 @@ static void sig_handle(int sig)
 			pcap_breakloop(hPcap);
 			printf(_("!! 发送数据包失败, 请检查网络连接！\n"));
 #ifndef NO_NOTIFY
-			if (showNotify)
-				show_notify(_("MentoHUST - 错误提示"), _("发送数据包失败, 请检查网络连接！"));
+			if (showNotify && show_notify(_("MentoHUST - 错误提示"),
+				_("发送数据包失败, 请检查网络连接！"), 1000*showNotify) < 0)
+				showNotify = 0;
 #endif
 			exit(EXIT_FAILURE);
 		}
@@ -184,7 +186,8 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 #ifndef NO_NOTIFY
 				if (showNotify) {
 					sprintf(str, _("欺骗源: %s"), formatHex(buf+0x16, 6));
-					show_notify(_("MentoHUST - ARP提示"), str);
+					if (show_notify(_("MentoHUST - ARP提示"), str, 1000*showNotify) < 0)
+						showNotify = 0;
 				}
 #endif
 			}
@@ -205,8 +208,9 @@ static void showRuijieMsg(const u_char *buf, unsigned bufLen)
 			if (strlen(serverMsg)) {
 				printf(_("$$ 系统提示:\t%s\n"), serverMsg);
 #ifndef NO_NOTIFY
-				if (showNotify)
-					show_notify(_("MentoHUST - 系统提示"), serverMsg);
+				if (showNotify && show_notify(_("MentoHUST - 系统提示"),
+					serverMsg, 1000*showNotify) < 0)
+					showNotify = 0;
 #endif
 			}
 			free(serverMsg);
@@ -223,8 +227,9 @@ static void showRuijieMsg(const u_char *buf, unsigned bufLen)
 			if (strlen(serverMsg)) {
 				printf(_("$$ 计费提示:\t%s\n"), serverMsg);
 #ifndef NO_NOTIFY
-				if (showNotify)
-					show_notify(_("MentoHUST - 计费提示"), serverMsg);
+				if (showNotify && show_notify(_("MentoHUST - 计费提示"),
+					serverMsg, 1000*showNotify) < 0)
+					showNotify = 0;
 #endif
 			}
 			free(serverMsg);
@@ -242,8 +247,9 @@ static void showCernetMsg(const u_char *buf)
 	{
 		printf(_("$$ 系统提示:\t%s\n"), serverMsg);
 #ifndef NO_NOTIFY
-			if (showNotify)
-				show_notify(_("MentoHUST - 系统提示"), serverMsg);
+			if (showNotify && show_notify(_("MentoHUST - 系统提示"),
+				serverMsg, 1000*showNotify) < 0)
+				showNotify = 0;
 #endif
 		free(serverMsg);
 	}
