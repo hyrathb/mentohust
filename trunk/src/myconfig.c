@@ -165,21 +165,12 @@ void initConfig(int argc, char **argv)
 			"Bug report to %s\n\n"), VERSION, PACKAGE_BUGREPORT);
 	saveFlag = (readFile(&daemonMode)==0 ? 0 : 1);
 	readArg(argc, argv, &saveFlag, &exitFlag, &daemonMode);
-#ifndef NO_NOTIFY
-	if (showNotify) {
-		seteuid(getuid());
-		if (load_libnotify() == -1)
-			showNotify = 0;
-		else
-			set_timeout(1000 * showNotify);
-		seteuid(0);
-	}
-#endif
 #ifndef NO_DYLOAD
 	if (load_libpcap() == -1) {
 #ifndef NO_NOTIFY
-		if (showNotify)
-			show_notify(_("MentoHUST - 错误提示"), _("载入libpcap失败, 请检查该库文件！"));
+		if (showNotify && show_notify(_("MentoHUST - 错误提示"),
+			_("载入libpcap失败, 请检查该库文件！"), 1000*showNotify) < 0)
+			showNotify = 0;
 #endif
 		exit(EXIT_FAILURE);
 	}
@@ -189,8 +180,9 @@ void initConfig(int argc, char **argv)
 		saveFlag = 1;
 		if (getAdapter() == -1) {	/* 找不到（第一块）网卡？ */
 #ifndef NO_NOTIFY
-			if (showNotify)
-				show_notify(_("MentoHUST - 错误提示"), _("找不到网卡！"));
+		if (showNotify && show_notify(_("MentoHUST - 错误提示"),
+			_("找不到网卡！"), 1000*showNotify) < 0)
+			showNotify = 0;
 #endif
 			exit(EXIT_FAILURE);
 		}
@@ -221,8 +213,9 @@ void initConfig(int argc, char **argv)
 	printConfig();
 	if (fillHeader()==-1 || openPcap()==-1) {	/* 获取IP、MAC，打开网卡 */
 #ifndef NO_NOTIFY
-		if (showNotify)
-			show_notify(_("MentoHUST - 错误提示"), _("获取MAC地址或打开网卡失败！"));
+		if (showNotify && show_notify(_("MentoHUST - 错误提示"),
+			_("获取MAC地址或打开网卡失败！"), 1000*showNotify) < 0)
+			showNotify = 0;
 #endif
 		exit(EXIT_FAILURE);
 	}
@@ -599,8 +592,9 @@ static void checkRunning(int exitFlag, int daemonMode)
 
 error_exit:
 #ifndef NO_NOTIFY
-	if (showNotify)
-		show_notify(_("MentoHUST - 错误提示"), _("操作锁文件失败，请检查是否为root权限！"));
+	if (showNotify && show_notify(_("MentoHUST - 错误提示"),
+		_("操作锁文件失败，请检查是否为root权限！"), 1000*showNotify) < 0)
+		showNotify = 0;
 #endif
 	exit(EXIT_FAILURE);
 }
