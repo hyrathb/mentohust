@@ -67,10 +67,8 @@ void free_libpcap(void);	/* 释放libpcap.so */
 #endif	/* NO_DYLOAD */
 
 #ifndef NO_NOTIFY
-int load_libnotify(void);	/* 载入libnotify.so */
 void free_libnotify(void);	/* 释放libnotify.so */
-void set_timeout(int timeout);	/* 设置超时间隔 */
-void show_notify(const char *summary, char *body);	/* 显示通知:概要、正文 */
+int show_notify(const char *summary, char *body, int timeout);	/* 显示通知:概要、正文、超时 */
 #endif	/* NO_NOTIFY */
 
 #endif	/* HUSTMOON_DLFUNC_H */

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mentohust 0.3.1\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/mentohust/issues/list\n"
-"POT-Creation-Date: 2010-04-22 20:06+0800\n"
+"POT-Creation-Date: 2010-05-14 20:17+0800\n"
 "PO-Revision-Date: 2010-04-22 20:08+0800\n"
 "Last-Translator: <mentohust_mail@ehust.co.cc>\n"
 "Language-Team: HustMoon Studio\n"
@@ -24,17 +24,17 @@ msgstr "!!Failed to open libpcap, please check its existence.\n"
 msgid "!! 从libpcap获取函数失败: %s\n"
 msgstr "!! Failed To Get libpcap function : %s\n"
 
-#: src/dlfunc.c:108
+#: src/dlfunc.c:109
 #, c-format
 msgid "!! 打开libnotify失败，请检查是否已安装该库文件。\n"
 msgstr "!! cannot load libnotify, please check its exitence.\n"
 
-#: src/dlfunc.c:116
+#: src/dlfunc.c:117
 #, c-format
 msgid "!! 从libnotify获取函数失败: %s\n"
 msgstr "!! Failed To Get libnotify function : %s\n"
 
-#: src/dlfunc.c:121
+#: src/dlfunc.c:123
 #, c-format
 msgid "!! 初始化libnotify失败。\n"
 msgstr "!! Uable to initlize libnotify.\n"
@@ -44,8 +44,8 @@ msgstr "!! Uable to initlize libnotify.\n"
 msgid "!! 捕获数据包失败，请检查网络连接！\n"
 msgstr "!! Failed to capture packets, please check network connections!\n"
 
-#: src/mentohust.c:68 src/mentohust.c:103 src/myconfig.c:182
-#: src/myconfig.c:193 src/myconfig.c:225 src/myconfig.c:603
+#: src/mentohust.c:67 src/mentohust.c:103 src/myconfig.c:171
+#: src/myconfig.c:183 src/myconfig.c:216 src/myconfig.c:595
 msgid "MentoHUST - 错误提示"
 msgstr "MentoHUST - Error Tips"
 
@@ -53,79 +53,79 @@ msgstr "MentoHUST - Error Tips"
 msgid "捕获数据包失败，请检查网络连接！"
 msgstr "Failed to capture packets, please check network connections!"
 
-#: src/mentohust.c:90
+#: src/mentohust.c:91
 #, c-format
 msgid ">> 认证已退出。\n"
 msgstr ">> Authentication exited.\n"
 
-#: src/mentohust.c:100
+#: src/mentohust.c:101
 #, c-format
 msgid "!! 发送数据包失败, 请检查网络连接！\n"
 msgstr "!! Failed to send packets, please check network connections!\n"
 
-#: src/mentohust.c:103
+#: src/mentohust.c:104
 msgid "发送数据包失败, 请检查网络连接！"
 msgstr "Failed to capture packets, please check network connections!"
 
-#: src/mentohust.c:127
+#: src/mentohust.c:129
 #, c-format
 msgid "** 认证MAC:\t%s\n"
 msgstr "** Server MAC:\t%s\n"
 
-#: src/mentohust.c:137
+#: src/mentohust.c:139
 #, c-format
 msgid ">> 认证成功!\n"
 msgstr ">> Authentication succeed!\n"
 
-#: src/mentohust.c:156 src/mystate.c:107
+#: src/mentohust.c:158 src/mystate.c:107
 #, c-format
 msgid ">> 认证掉线，开始重连!\n"
 msgstr ">> Authentication lost, begin reconnect!\n"
 
-#: src/mentohust.c:160
+#: src/mentohust.c:162
 #, c-format
 msgid ">> 认证失败!\n"
 msgstr ">> Authentication failed!\n"
 
-#: src/mentohust.c:164
+#: src/mentohust.c:166
 #, c-format
 msgid ">> 连续认证失败%u次，退出认证。\n"
 msgstr ">> Authentication failed %u times, exited.\n"
 
-#: src/mentohust.c:178
+#: src/mentohust.c:180
 #, c-format
 msgid "** 网关MAC:\t%s\n"
 msgstr "** Gateway MAC:\t%s\n"
 
-#: src/mentohust.c:183
+#: src/mentohust.c:185
 #, c-format
 msgid "** ARP欺骗:\t%s\n"
 msgstr "** ARP cheat:\t%s\n"
 
-#: src/mentohust.c:186
+#: src/mentohust.c:188
 #, c-format
 msgid "欺骗源: %s"
 msgstr "Cheat Source: %s"
 
-#: src/mentohust.c:187
+#: src/mentohust.c:189
 msgid "MentoHUST - ARP提示"
 msgstr "MentoHUST - ARP Tips"
 
-#: src/mentohust.c:206 src/mentohust.c:243
+#: src/mentohust.c:209 src/mentohust.c:248
 #, c-format
 msgid "$$ 系统提示:\t%s\n"
 msgstr "$$ Server Msg:\t%s\n"
 
-#: src/mentohust.c:209 src/mentohust.c:246
+#: src/mentohust.c:211 src/mentohust.c:250
 msgid "MentoHUST - 系统提示"
 msgstr "MentoHUST - Server Msg"
 
-#: src/mentohust.c:224
+#: src/mentohust.c:228
 #, c-format
 msgid "$$ 计费提示:\t%s\n"
 msgstr "$$ Money Msg:\t%s\n"
 
-#: src/mentohust.c:227
+#: src/mentohust.c:230
 msgid "MentoHUST - 计费提示"
 msgstr "MentoHUST - Money Msg"
 
@@ -145,39 +145,39 @@ msgstr ""
 "Bug report to %s\n"
 "\n"
 
-#: src/myconfig.c:182
+#: src/myconfig.c:172
 msgid "载入libpcap失败, 请检查该库文件！"
 msgstr "Failed to load libpcap, please check its existence."
 
-#: src/myconfig.c:193
+#: src/myconfig.c:184
 msgid "找不到网卡！"
 msgstr ""
 
-#: src/myconfig.c:201
+#: src/myconfig.c:193
 #, c-format
 msgid "?? 请输入用户名: "
 msgstr ""
 
-#: src/myconfig.c:203
+#: src/myconfig.c:195
 #, c-format
 msgid "?? 请输入密码: "
 msgstr ""
 
-#: src/myconfig.c:205
+#: src/myconfig.c:197
 #, c-format
 msgid "?? 请选择组播地址(0标准 1锐捷私有 2赛尔): "
 msgstr ""
 
-#: src/myconfig.c:208
+#: src/myconfig.c:200
 #, c-format
 msgid "?? 请选择DHCP方式(0不使用 1二次认证 2认证后 3认证前): "
 msgstr ""
 
-#: src/myconfig.c:225
+#: src/myconfig.c:217
 msgid "获取MAC地址或打开网卡失败！"
 msgstr ""
 
-#: src/myconfig.c:373
+#: src/myconfig.c:366
 #, c-format
 msgid ""
 "用法:\t%s [-选项][参数]\n"
@@ -212,190 +212,190 @@ msgid ""
 "\n"
 msgstr ""
 
-#: src/myconfig.c:412
+#: src/myconfig.c:405
 #, c-format
 msgid "!! 查找网卡失败: %s\n"
 msgstr ""
 
-#: src/myconfig.c:420
+#: src/myconfig.c:413
 #, c-format
 msgid "** 网卡[%d]:\t%s\n"
 msgstr ""
 
-#: src/myconfig.c:428
+#: src/myconfig.c:421
 #, c-format
 msgid "!! 找不到网卡！\n"
 msgstr ""
 
-#: src/myconfig.c:433
+#: src/myconfig.c:426
 #, c-format
 msgid "?? 请选择网卡[1-%d]: "
 msgstr ""
 
-#: src/myconfig.c:440
+#: src/myconfig.c:433
 #, c-format
 msgid "** 您选择了第[%d]块网卡。\n"
 msgstr ""
 
-#: src/myconfig.c:449
+#: src/myconfig.c:442
 msgid "标准"
 msgstr ""
 
-#: src/myconfig.c:449
+#: src/myconfig.c:442
 msgid "锐捷"
 msgstr ""
 
-#: src/myconfig.c:449
+#: src/myconfig.c:442
 msgid "赛尔"
 msgstr ""
 
-#: src/myconfig.c:450
+#: src/myconfig.c:443
 msgid "不使用"
 msgstr ""
 
-#: src/myconfig.c:450
+#: src/myconfig.c:443
 msgid "二次认证"
 msgstr ""
 
-#: src/myconfig.c:450
+#: src/myconfig.c:443
 msgid "认证后"
 msgstr ""
 
-#: src/myconfig.c:450
+#: src/myconfig.c:443
 msgid "认证前"
 msgstr ""
 
-#: src/myconfig.c:451
+#: src/myconfig.c:444
 #, c-format
 msgid "** 用户名:\t%s\n"
 msgstr ""
 
-#: src/myconfig.c:453
+#: src/myconfig.c:446
 #, c-format
 msgid "** 网卡: \t%s\n"
 msgstr ""
 
-#: src/myconfig.c:455
+#: src/myconfig.c:448
 #, c-format
 msgid "** 网关地址:\t%s\n"
 msgstr ""
 
-#: src/myconfig.c:457
+#: src/myconfig.c:450
 #, c-format
 msgid "** DNS地址:\t%s\n"
 msgstr ""
 
-#: src/myconfig.c:459
+#: src/myconfig.c:452
 #, c-format
 msgid "** 智能重连:\t%s\n"
 msgstr ""
 
-#: src/myconfig.c:460
+#: src/myconfig.c:453
 #, c-format
 msgid "** 认证超时:\t%u秒\n"
 msgstr ""
 
-#: src/myconfig.c:461
+#: src/myconfig.c:454
 #, c-format
 msgid "** 心跳间隔:\t%u秒\n"
 msgstr ""
 
-#: src/myconfig.c:462
+#: src/myconfig.c:455
 #, c-format
 msgid "** 失败等待:\t%u秒\n"
 msgstr ""
 
-#: src/myconfig.c:464
+#: src/myconfig.c:457
 #, c-format
 msgid "** 允许失败:\t%u次\n"
 msgstr ""
 
-#: src/myconfig.c:465
+#: src/myconfig.c:458
 #, c-format
 msgid "** 组播地址:\t%s\n"
 msgstr ""
 
-#: src/myconfig.c:466
+#: src/myconfig.c:459
 #, c-format
 msgid "** DHCP方式:\t%s\n"
 msgstr ""
 
-#: src/myconfig.c:469
+#: src/myconfig.c:462
 #, c-format
 msgid "** 通知超时:\t%d秒\n"
 msgstr ""
 
-#: src/myconfig.c:472
+#: src/myconfig.c:465
 #, c-format
 msgid "** 数据文件:\t%s\n"
 msgstr ""
 
-#: src/myconfig.c:474
+#: src/myconfig.c:467
 #, c-format
 msgid "** DHCP脚本:\t%s\n"
 msgstr ""
 
-#: src/myconfig.c:483
+#: src/myconfig.c:476
 #, c-format
 msgid "!! 打开网卡%s失败: %s\n"
 msgstr ""
 
-#: src/myconfig.c:497
+#: src/myconfig.c:490
 #, c-format
 msgid "!! 设置pcap过滤器失败: %s\n"
 msgstr ""
 
-#: src/myconfig.c:545
+#: src/myconfig.c:538
 #, c-format
 msgid "!! 保存认证参数到%s失败！\n"
 msgstr ""
 
-#: src/myconfig.c:547
+#: src/myconfig.c:540
 #, c-format
 msgid "** 认证参数已成功保存到%s.\n"
 msgstr ""
 
-#: src/myconfig.c:556
+#: src/myconfig.c:549
 msgid "!! 打开锁文件失败"
 msgstr ""
 
-#: src/myconfig.c:564
+#: src/myconfig.c:557
 msgid "!! 获取文件锁失败"
 msgstr ""
 
-#: src/myconfig.c:569
+#: src/myconfig.c:562
 #, c-format
 msgid ">> 已发送退出信号给MentoHUST进程(PID=%d).\n"
 msgstr ""
 
-#: src/myconfig.c:571
+#: src/myconfig.c:564
 msgid "!! 结束进程失败"
 msgstr ""
 
-#: src/myconfig.c:574
+#: src/myconfig.c:567
 #, c-format
 msgid "!! 没有MentoHUST正在运行！\n"
 msgstr ""
 
-#: src/myconfig.c:579
+#: src/myconfig.c:572
 #, c-format
 msgid "!! MentoHUST已经运行(PID=%d)!\n"
 msgstr ""
 
-#: src/myconfig.c:583
+#: src/myconfig.c:576
 #, c-format
 msgid ">> 进入后台运行模式，使用参数-k可退出认证。\n"
 msgstr ""
 
-#: src/myconfig.c:585
+#: src/myconfig.c:578
 msgid "!! 后台运行失败"
 msgstr ""
 
-#: src/myconfig.c:595
+#: src/myconfig.c:588
 msgid "!! 加锁失败"
 msgstr ""
 
-#: src/myconfig.c:603
+#: src/myconfig.c:596
 msgid "操作锁文件失败，请检查是否为root权限！"
 msgstr ""
 
@@ -464,17 +464,7 @@ msgstr ""
 msgid "** V2校验值:\t%s\n"
 msgstr ""
 
-#: src/myfunc.c:479
-#, c-format
-msgid "!! 缺少W32N55.dll信息，客户端校验无法继续！\n"
-msgstr ""
-
-#: src/myfunc.c:484
-#, c-format
-msgid "** V3校验值:\t%s\n"
-msgstr ""
-
-#: src/myfunc.c:575
+#: src/myfunc.c:566
 msgid "!! Ping主机出错，关闭该功能"
 msgstr ""
 

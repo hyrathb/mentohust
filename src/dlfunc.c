@@ -75,6 +75,7 @@ void free_libpcap(void) {
 
 #ifndef NO_NOTIFY
 #include <dlfcn.h>
+#include <unistd.h>
 
 typedef void NotifyNotification, GtkWidget, GError;
 typedef char gchar;
@@ -88,7 +89,7 @@ static gboolean (*notify_notification_show)(NotifyNotification *, GError **);
 static void *libnotify = NULL;
 static NotifyNotification *notify = NULL;
 
-int load_libnotify(void) {
+static int load_libnotify(void) {
 	char *error;
 	gboolean (*notify_init)(const char *);
 	NotifyNotification *(*notify_notification_new)(const gchar *, const gchar *,
@@ -117,12 +118,12 @@ int load_libnotify(void) {
 		free_libnotify();
 		return -1;
 	}
-	if (!notify_init("mentohust")) {
+	if (!notify_init("mentohust") ||
+		!(notify = notify_notification_new("MentoHUST", NULL, NULL, NULL))) {
 		printf(_("!! 初始化libnotify失败。\n"));
 		free_libnotify();
 		return -1;
 	}
-	notify = notify_notification_new("MentoHUST", NULL, NULL, NULL);
 	return 0;
 }
 
@@ -141,13 +142,16 @@ void free_libnotify(void) {
 	}
 }
 
-void set_timeout(int timeout) {
+int show_notify(const char *summary, char *body, int timeout) {
+	if (!notify && load_libnotify() < 0) {
+		return -1;
+	}
+	seteuid(getuid());
 	notify_notification_set_timeout(notify, timeout);
-}
-
-void show_notify(const char *summary, char *body) {
 	notify_notification_update(notify, summary, body, NULL);
 	notify_notification_show(notify, NULL);
+	seteuid(0);
+	return 0;
 }
 
 #endif	/* NO_NOTIFY */
