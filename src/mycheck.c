@@ -6,10 +6,6 @@
 * 摘	要：客户端校验算法
 * 作	者：kkHAIKE
 */
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "mycheck.h"
 #include "myini.h"
 #include "md5.h"
@@ -229,4 +225,3 @@ fileError:
 		free(data);
 	return -1;
 }
-

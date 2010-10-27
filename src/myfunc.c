@@ -494,11 +494,10 @@ void fillEchoPacket(u_char *echoBuf)
 void getEchoKey(const u_char *capBuf)
 {
 	int i, offset = 0x1c+capBuf[0x1b]+0x69+24;	/* 通过比较了大量抓包，通用的提取点就是这样的 */
-	u_char *base;
-	echoKey = ntohl(*(u_int32_t *)(capBuf+offset));
-	base = (u_char *)(&echoKey);
+	u_char *base = (u_char *)(&echoKey);
 	for (i=0; i<4; i++)
-		base[i] = encode(base[i]);
+		base[i] = encode(capBuf[offset+i]);
+	echoKey = ntohl(echoKey);
 }
 
 u_char *checkPass(u_char id, const u_char *md5Seed, int seedLen)
