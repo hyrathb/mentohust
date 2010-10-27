@@ -180,7 +180,7 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 				printf(_("** 网关MAC:\t%s\n"), formatHex(gateMAC, 6));
 				sprintf(str, "arp -s %s %s", formatIP(gateway), formatHex(gateMAC, 6));
 				system(str);
-			} else if (buf[0x15]==0x02 && *(u_int32_t *)(buf+0x26)==rip
+			} else if (buf[0x15]==0x02 && memcmp(&rip, buf+0x26, 4)==0
 				&& memcmp(gateMAC, buf+0x16, 6)!=0) {
 				printf(_("** ARP欺骗:\t%s\n"), formatHex(buf+0x16, 6));
 #ifndef NO_NOTIFY

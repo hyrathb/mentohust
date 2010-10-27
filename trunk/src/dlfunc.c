@@ -143,10 +143,11 @@ void free_libnotify(void) {
 }
 
 int show_notify(const char *summary, char *body, int timeout) {
+	seteuid(getuid());
 	if (!notify && load_libnotify() < 0) {
+		seteuid(0);
 		return -1;
 	}
-	seteuid(getuid());
 	notify_notification_set_timeout(notify, timeout);
 	notify_notification_update(notify, summary, body, NULL);
 	notify_notification_show(notify, NULL);
