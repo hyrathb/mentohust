@@ -10,8 +10,7 @@ URL:            http://code.google.com/p/mentohust/
 Source0:        http://mentohust.googlecode.com/files/mentohust-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  glibc-devel
-Requires:       libpcap
+BuildRequires:  libpcap-devel dbus-devel pkgconfig
 
 %description
 This package contains a Ruijie and Cernet supplicant from HustMoon Studio.
@@ -30,7 +29,7 @@ mentohust是用来进行锐捷和塞尔认证的。因为官方没有Linux版本
 
 
 %build
-%configure --docdir=%{_defaultdocdir}/%{name}-%{version}
+%configure --docdir=%{_defaultdocdir}/%{name}-%{version} --with-pcap=dylib
 make %{?_smp_mflags}
 
 

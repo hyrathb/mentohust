@@ -2,7 +2,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = src po
 
-dist_doc_DATA = README
+dist_doc_DATA = README AUTHORS
 
 dist_man_MANS = mentohust.1
 
