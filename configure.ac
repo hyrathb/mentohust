@@ -4,7 +4,7 @@
 AC_PREREQ([2.63])
 AC_INIT([mentohust], [0.3.1], [http://code.google.com/p/mentohust/issues/list])
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AC_CONFIG_SRCDIR([src/myconfig.h])
 AC_CONFIG_HEADERS([config.h])
 
@@ -45,6 +45,14 @@ AS_IF([test "$with_pcap" = "dyload"], [AC_CHECK_LIB([dl], [dlsym])],
                [stlib], [AC_SUBST(LDADD, libpcap.a)],
                [AC_SUBST(LDADD, "$with_pcap")])])
 
+AS_CASE([$host_os],
+        [*darwin*],
+        [with_dbus=no],
+        [AC_ARG_WITH([dbus], [AC_HELP_STRING([ --without-dbus], [Don't use D-Bus support])], [], [with_dbus=yes])])
+AS_IF([test "x$with_dbus" = "xno"],
+      [AC_DEFINE(NO_DBUS, [], [Define NO_DBUS to disable D-Bus support])],
+      [PKG_CHECK_MODULES([DBUS], [dbus-1])])
+
 AC_ARG_ENABLE([notify], [AC_HELP_STRING([ --disable-notify], [Don't show notification])],
               [], [enable_notify="yes"])
 AS_IF([test "x$enable_notify" = "xno"],
@@ -70,5 +78,5 @@ AC_CHECK_FUNCS([atexit memmove memset socket strrchr setlocale])
 
 AC_CONFIG_FILES([Makefile src/Makefile po/Makefile.in mentohust.spec])
 
-AC_MSG_RESULT([config result: host($host_os) pcap($with_pcap) notify($enable_notify) encode($enable_encodepass) arp($enable_arp) nls($enable_nls)])
+AC_MSG_RESULT([config result: host($host_os) pcap($with_pcap) notify($enable_notify) encode($enable_encodepass) arp($enable_arp) nls($enable_nls) dbus($with_dbus)])
 AC_OUTPUT
