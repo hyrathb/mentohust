@@ -1,0 +1,6 @@
+# List of source files which contain translatable strings.
+src/dlfunc.c
+src/mentohust.c
+src/myconfig.c
+src/myfunc.c
+src/mystate.c
