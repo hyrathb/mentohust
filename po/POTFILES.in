@@ -4,3 +4,4 @@ src/mentohust.c
 src/myconfig.c
 src/myfunc.c
 src/mystate.c
+src/gtk2/mentohust-gtk2.c

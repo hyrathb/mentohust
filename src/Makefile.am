@@ -10,3 +10,7 @@ mentohust_SOURCES += i18n.h types.h myini.h md5.h mycheck.h dlfunc.h myfunc.h my
 
 mentohust_LDADD = $(LDADD) $(DBUS_LIBS)
 AM_CFLAGS = $(DBUS_CFLAGS)
+
+if WITH_GTK2
+SUBDIRS = gtk2
+endif
