@@ -47,11 +47,20 @@ AS_IF([test "$with_pcap" = "dyload"], [AC_CHECK_LIB([dl], [dlsym])],
 
 AS_CASE([$host_os],
         [*darwin*],
+        [with_gtk2=no],
+        [AC_ARG_WITH([gtk2], [AC_HELP_STRING([ --with-gtk2], [Build the Gtk2 GUI program])], [], [with_gtk2=no])])
+
+AS_CASE([$host_os],
+        [*darwin*],
         [with_dbus=no],
         [AC_ARG_WITH([dbus], [AC_HELP_STRING([ --without-dbus], [Don't use D-Bus support])], [], [with_dbus=yes])])
 AS_IF([test "x$with_dbus" = "xno"],
-      [AC_DEFINE(NO_DBUS, [], [Define NO_DBUS to disable D-Bus support])],
+      [AC_DEFINE(NO_DBUS, [], [Define NO_DBUS to disable D-Bus support])][with_gtk2=no],
       [PKG_CHECK_MODULES([DBUS], [dbus-1])])
+
+AS_IF([test "x$with_gtk2" = "xno"],
+      [], [PKG_CHECK_MODULES([GTK2], [gtk+-2.0 dbus-glib-1])])
+AM_CONDITIONAL([WITH_GTK2], [test "x$with_gtk2" = "xyes"])
 
 AC_ARG_ENABLE([notify], [AC_HELP_STRING([ --disable-notify], [Don't show notification])],
               [], [enable_notify="yes"])
@@ -76,7 +85,7 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_CHECK_FUNCS([atexit memmove memset socket strrchr setlocale])
 
-AC_CONFIG_FILES([Makefile src/Makefile po/Makefile.in mentohust.spec])
+AC_CONFIG_FILES([Makefile src/Makefile src/gtk2/Makefile po/Makefile.in mentohust.spec])
 
-AC_MSG_RESULT([config result: host($host_os) pcap($with_pcap) notify($enable_notify) encode($enable_encodepass) arp($enable_arp) nls($enable_nls) dbus($with_dbus)])
+AC_MSG_RESULT([config result: host($host_os) pcap($with_pcap) notify($enable_notify) encode($enable_encodepass) arp($enable_arp) nls($enable_nls) dbus($with_dbus) gtk2($with_gtk2)])
 AC_OUTPUT

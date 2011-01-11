@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Exec=mentohust-gtk2
+Icon=
+Terminal=false
+Categories=System;GTK;
+Name=Mentohust (GTK+ 2)
