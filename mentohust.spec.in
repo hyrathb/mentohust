@@ -10,7 +10,7 @@ URL:            http://code.google.com/p/mentohust/
 Source0:        http://mentohust.googlecode.com/files/mentohust-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  glibc-devel
+BuildRequires:  glibc-devel libpcap-devel
 Requires:       libpcap
 
 %description
