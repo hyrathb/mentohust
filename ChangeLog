@@ -1,0 +1,101 @@
+2011-02-07 12:10  schemacs@gmil.com
+
+	* src/config.c: 配置参数时输入密码更改为不回显
+	* po/en.po: 更正部分英文翻译
+	* ChangeLog: 用svn2cl生成ChangeLog历史内容
+
+2011-01-30 23:57  microcaicai
+
+	* mentohust.spec.in: rpm spec fix
+
+2011-01-30 23:56  microcaicai
+
+	* po, po/en.po: Update english translation
+
+2010-10-29 00:44  microcaicai
+
+	* src/mycheck.c: 好的，添加上去
+
+2010-10-27 04:55  www.ehust@gmail.com
+
+	* src/dlfunc.c, src/mentohust.c, src/mycheck.c, src/myfunc.c: 字节对齐
+
+2010-06-02 07:14  robinlee.sysu@gmail.com
+
+	* mentohust.spec.in, src/mycheck.c: update the spec file and
+	  include config.h in src/mycheck.c
+
+2010-05-14 12:20  www.ehust@gmail.com
+
+	* po/en.po, src/dlfunc.c, src/dlfunc.h, src/mentohust.c,
+	  src/myconfig.c: 解决Ubuntu10.04下libnotify的问题
+
+2010-04-23 02:02  www.ehust@gmail.com
+
+	* po/en.po: 忘了svn add，这个好容易忘啊
+
+2010-04-22 13:38  www.ehust@gmail.com
+
+	* Makefile.am, README, autogen.sh, configure.ac, po/LINGUAS,
+	  po/Makevars, po/POTFILES.in, po/zh_CN.po, src/Makefile.am,
+	  src/dlfunc.c, src/dlfunc.h, src/i18n.h, src/mentohust.c,
+	  src/mentohust.conf, src/mycheck.c, src/mycheck.h, src/myconfig.c,
+	  src/myfunc.c, src/myfunc.h, src/myini.c, src/myini.h,
+	  src/mystate.c: 新增-q参数显示解密后的SuConfig.dat以便选择DHCP方式。
+
+2010-04-19 08:58  microcaicai
+
+	* src/mentohust.c: 修复错误的预处理
+
+2010-04-09 11:28  microcaicai@gmail.com
+
+	* autogen.sh: change missing w
+
+2010-03-28 21:21  microcaicai
+
+	* mentohust.spec.in: rpm 包 改一下
+
+2010-03-28 21:20  microcaicai
+
+	* Makefile.am, configure.ac, mentohust.spec, mentohust.spec.in: rpm
+	  打包机制改革
+
+2010-03-28 21:16  microcaicai
+
+	* ., Makefile.am: 改改。。。。
+
+2010-03-28 21:13  microcaicai
+
+	* po/zh_CN.po, src/myconfig.c: 翻译一下
+
+2010-03-28 21:04  microcaicai
+
+	* po/zh_CN.po, src/dlfunc.c: 翻译一下
+
+2010-03-28 20:49  microcaicai
+
+	* po/zh_CN.po: 翻译一下
+
+2010-03-28 20:43  microcaicai
+
+	* configure.ac: 好看点的编译输出显示
+
+2010-03-28 20:37  microcaicai
+
+	* ., Makefile.am, configure.ac, m4, po, po/LINGUAS, po/Makevars,
+	  po/POTFILES.in, po/zh_CN.po, src, src/dlfunc.c, src/dlfunc.h,
+	  src/i18n.h, src/mentohust.c, src/mycheck.c, src/myconfig.c,
+	  src/myfunc.c, src/myini.c, src/mystate.c: 国际化，这次是真的可以用了
+
+2010-03-10 06:16  www.ehust@gmail.com
+
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, autogen.sh,
+	  configure.ac, debian, debian/changelog, debian/compat,
+	  debian/control, debian/copyright, debian/rules, debian/watch,
+	  mentohust.1, mentohust.spec, src, src/Makefile.am, src/dlfunc.c,
+	  src/dlfunc.h, src/md5.c, src/md5.h, src/mentohust.c,
+	  src/mentohust.conf, src/mycheck.c, src/mycheck.h, src/myconfig.c,
+	  src/myconfig.h, src/myfunc.c, src/myfunc.h, src/myini.c,
+	  src/myini.h, src/mystate.c, src/mystate.h, src/types.h:
+	  针对FreeBSD修正
+

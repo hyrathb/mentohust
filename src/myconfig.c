@@ -25,6 +25,7 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 #include <signal.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <termios.h>
 
 #define ACCOUNT_SIZE		65	/* 用户名密码长度*/
 #define NIC_SIZE			16	/* 网卡名最大长度 */
@@ -36,6 +37,8 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 #define D_DHCPMODE			0	/* 默认DHCP模式 */
 #define D_DAEMONMODE		0	/* 默认daemon模式 */
 #define D_MAXFAIL			8	/* 默认允许失败次数 */
+
+#define ECHOFLAGS (ECHO|ECHOE|ECHOK|ECHONL)
 
 #ifdef MAC_OS
 static const char *D_DHCPSCRIPT = "dhcping -v -t 15";	/* 默认DHCP脚本 */
@@ -153,6 +156,49 @@ static int decodePass(char *dst, const char *src) {
 }
 #endif
 
+int getpasswd(char  passwd[])
+{
+    int ret=0;
+	struct termios termios_buf;
+	
+	if(tcgetattr(STDIN_FILENO,&termios_buf)!=0)
+	{
+		perror("tcgetattr failed");
+		return -1;
+	}
+	
+	termios_buf.c_lflag &= ~ECHOFLAGS;
+	
+	if(tcsetattr(STDIN_FILENO,TCSAFLUSH,&termios_buf)!=0)
+	{
+		perror("tcsetattr failed");
+		return -2;
+	}
+	
+	if(passwd!=NULL){
+	    ret=scanf("%s", passwd);
+	}
+	
+    //printf("\nYour passwd is %s\n",passwd);
+
+	if(tcgetattr(STDIN_FILENO,&termios_buf)!=0)
+	{
+		perror("tcgetattr failed");
+		return -1;
+	}
+	
+	termios_buf.c_lflag |= ECHOFLAGS;
+	
+	if(tcsetattr(STDIN_FILENO,TCSAFLUSH,&termios_buf)!=0)
+	{
+		perror("tcsetattr failed");
+		return -2;
+	}
+	
+	return ret>0?0:1;
+}
+
+
 void initConfig(int argc, char **argv)
 {
 	int saveFlag = 0;	/* 是否需要保存参数 */
@@ -192,8 +238,13 @@ void initConfig(int argc, char **argv)
 		saveFlag = 1;
 		printf(_("?? 请输入用户名: "));
 		scanf("%s", userName);
+		
 		printf(_("?? 请输入密码: "));
-		scanf("%s", password);
+		//scanf("%s", password);
+		getpasswd(password);
+		//last newline eaten by scanf in getpasswd
+		printf("\n");
+		
 		printf(_("?? 请选择组播地址(0标准 1锐捷私有 2赛尔): "));
 		scanf("%u", &startMode);
 		startMode %= 3;
