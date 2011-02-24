@@ -38,7 +38,7 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 #define D_DAEMONMODE		0	/* 默认daemon模式 */
 #define D_MAXFAIL			8	/* 默认允许失败次数 */
 
-#define ECHOFLAGS (ECHO|ECHOE|ECHOK|ECHONL)
+#define ECHOFLAGS (ECHO|ECHOE|ECHOK|ECHONL)    /* 控制台输入密码时的模式*/
 
 #ifdef MAC_OS
 static const char *D_DHCPSCRIPT = "dhcping -v -t 15";	/* 默认DHCP脚本 */
@@ -163,7 +163,7 @@ int getpasswd(char  passwd[])
 	
 	if(tcgetattr(STDIN_FILENO,&termios_buf)!=0)
 	{
-		perror("tcgetattr failed");
+		perror(_("获取终端属性失败"));
 		return -1;
 	}
 	
@@ -171,7 +171,7 @@ int getpasswd(char  passwd[])
 	
 	if(tcsetattr(STDIN_FILENO,TCSAFLUSH,&termios_buf)!=0)
 	{
-		perror("tcsetattr failed");
+		perror(_("设置终端属性失败"));
 		return -2;
 	}
 	
@@ -183,7 +183,7 @@ int getpasswd(char  passwd[])
 
 	if(tcgetattr(STDIN_FILENO,&termios_buf)!=0)
 	{
-		perror("tcgetattr failed");
+		perror(_("获取终端属性失败"));
 		return -1;
 	}
 	
@@ -191,7 +191,7 @@ int getpasswd(char  passwd[])
 	
 	if(tcsetattr(STDIN_FILENO,TCSAFLUSH,&termios_buf)!=0)
 	{
-		perror("tcsetattr failed");
+		perror(_("设置终端属性失败"));
 		return -2;
 	}
 	
@@ -443,6 +443,7 @@ static void showHelp(const char *fileName)
 		"例如:\t%s -uusername -ppassword -neth0 -i192.168.0.1 -m255.255.255.0 -g0.0.0.0 -s0.0.0.0 -o0.0.0.0 -t8 -e30 -r15 -a0 -d1 -b0 -v4.10 -fdefault.mpf -cdhclient\n"
 		"注意：使用时请确保是以root权限运行！\n\n");
 	printf(helpString, fileName, fileName);
+	//cancel the registered funciton:atexit(exit_handle)
 	exit(EXIT_SUCCESS);
 }
 
