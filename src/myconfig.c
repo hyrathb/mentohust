@@ -523,7 +523,7 @@ static int openPcap()
 {
 	char buf[PCAP_ERRBUF_SIZE], *fmt;
 	struct bpf_program fcode;
-	if ((hPcap = pcap_open_live(nic, 2048,0, 1000, buf)) == NULL)
+	if ((hPcap = pcap_open_live(nic, 2048, startMode >= 3  , 1000, buf)) == NULL)
 	{
 		printf(_("!! 打开网卡%s失败: %s\n"), nic, buf);
 		return -1;
