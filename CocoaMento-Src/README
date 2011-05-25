@@ -1,0 +1,15 @@
+CocoaMento是一个使用Cocoa和Qt代码混合编写的校园网登陆客户端图形界面加壳程序，目前只适用于Mac OS X，在10.6以上版本测试通过。
+
+编译注意事项
+
+1，因为使用Qt框架，编译前需前往Qt官网下载Qt SDK,届时打开CocoaMento.pro文件直接编译即可。
+2，为了方便mentohust进程和GUI的交互，对mentohust代码略有修改，主要修改在于更改了程序向外输出的字符串。代码在mentohust-src文件夹中，只需在对应目录下执行make命令即可
+3，mentohust-src/auth.c是为了在Mac OS下完成对程序权限的申请而特制的一个小程序，使用gcc auth.c -o auth命令直接编译即可
+4，最新版本的CocoaMento加入了Growl框架的支持，编译前请先下载配置开源的Growl SDK
+
+打包注意事项
+
+1，Mac OS的App存放在bundle结构的目录体系下，编译好以后，应将编译所得的mentohust文件和auth文件移动到Contents/MacOS/目录下。
+2，为了方便权限管理，采用了私用pcap的方法，请将系统内的libpcap.dylib库复制或制作快捷连接，放置于Contents/Frameworks目录下
+3，程序的Contents/Resources文件夹内可以存放图标等资源，Contents/Resources/data/文件夹是默认存放官方锐捷数据文件的目录
+
