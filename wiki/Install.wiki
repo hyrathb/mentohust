@@ -14,6 +14,10 @@ rpm -ivh "rpm包文件名"
 
 == Ubuntu发行版 ==
 请[http://code.google.com/p/mentohust/downloads/list?q=deb 下载最新的DEB软件包]，双击deb包即可安装。
+如果无法双击安装，可使用命令行操作：
+{{{
+sudo dpkg -i "deb包文件名"
+}}}
 
 == {{{ArchLinux}}}发行版 ==
 目前，{{{ArchLinux}}}发行版的用户可以在AUR中搜索mentohust软件包来进行安装。或者点击以下下链接直接查
@@ -26,9 +30,20 @@ yaourt -S mentohust
 }}}
 另外，你也可以直接下载已经编译好的软件包（[http://mentohust.googlecode.com/files/mentohust-0.3.1-2-x86_64.pkg.tar.gz x86_64平台]或[http://mentohust.googlecode.com/files/mentohust-0.3.1-2-i686.pkg.tar.gz i686平台]  )。
 
+== 手工安装 ==
+如果所用系统并没有对应的软件包，可使用解压软件从deb包提取文件或者自己编译（MacOS就别从deb包提取了，而应该下载对应的MacOS版），然后复制文件到/usr/bin下：
+{{{
+sudo cp ./mentohust /usr/bin/mentohust
+sudo +x /usr/bin/mentohust
+}}}
+不会敲命令的可输入以下命令后像Windows下一样操作：
+{{{
+sudo xdg-open /
+}}}
+
 = 手动编译 =
   == 准备好源代码 ==
-  您可以直接[http://code.google.com/p/mentohust/downloads/list?q=tar.gz 下载源代码包]或者运行以下命令从svn仓库取出最新版代码并生成对应的configure文件：
+  您可以直接[http://code.google.com/p/mentohust/downloads/list?q=tar.gz 下载源代码包]或者运行以下命令从svn仓库取出最新版代码并生成对应的configure文件（需要安装相应工具链）：
   {{{
 svn checkout http://mentohust.googlecode.com/svn/trunk/ mentohust
 cd mentohust
