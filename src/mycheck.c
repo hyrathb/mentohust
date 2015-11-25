@@ -4,15 +4,9 @@
 *
 * 文件名称：mycheck.c
 * 摘	要：客户端校验算法
-* 作	者：kkHAIKE
+* 作	者：kkHAIKE & HustMoon
 */
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "mycheck.h"
-#include "myini.h"
 #include "md5.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +14,7 @@
 
 static BYTE *bin_8021x = NULL;
 static DWORD size_8021x;
+static BYTE hex[][17]={"0123456789ABCDEF", "0123456789abcdef"};
 
 #ifdef WORDS_BIGENDIAN
 WORD ltobs(WORD x) {
@@ -35,7 +30,6 @@ DWORD ltobl(DWORD x) {
 #endif
 
 void hex_to_str(const BYTE *a, char *b, int hexsize, int upper) {
-	static const BYTE hex[][17]={"0123456789ABCDEF", "0123456789abcdef"};
 	BYTE *q = (BYTE *)b;
 	int i;
 	for (i=0; i<hexsize; i++) {
@@ -45,7 +39,7 @@ void hex_to_str(const BYTE *a, char *b, int hexsize, int upper) {
 	*q = 0;
 }
 
-static BYTE *ReadCode(const char *file, DWORD *size) {
+BYTE *ReadCode(const char *file, DWORD *size) {
 	BYTE *data = NULL;
 	int i;
 	FILE *fp;
@@ -79,7 +73,7 @@ fileError:
 	return NULL;
 }
 
-static BYTE *ReadCode2(const char *dataFile, DWORD *size) {
+BYTE *ReadCode2(const char *dataFile, DWORD *size) {
 	BYTE Buf[16], *buf=Buf;
 	FILE *fp = NULL;
 	if ((fp=fopen(dataFile, "rb")) == NULL
@@ -100,44 +94,6 @@ fileError:
 	if (fp != NULL)
 		fclose(fp);
 	return NULL;
-}
-
-static void decode_dat(BYTE *src, BYTE *dst, int src_len, int dst_len) {
-	BYTE tmp[0x8000], *sp, *dp, *s_end = src+src_len+1, *d_end = dst+dst_len, s, d;
-	DWORD i, m = 0, n = 0;
-	memset(tmp, 0x20, sizeof(tmp));
-	for (i=0; i<src_len; i++) {
-		src[i] = 255 - src[i];
-	}
-	for (sp=src, dp=dst, s=*sp++; sp<s_end; s=*sp++) {
-		for (i=0; i<8; i++) {
-			d = 1<<i;
-			if ((s&d) == 0) {
-				d = *sp++;
-				if (sp >= s_end)
-					return;
-				tmp[(m<<7)^n] = d;
-			} else {
-				d = tmp[(m<<7)^n];
-			}
-			*dp++ = d;
-			if (dp >= d_end) {
-				return;
-			}
-			m = n;
-			n = d;
-		}
-	}
-}
-
-int decodeConfig(const char *file, BYTE *dbuf, int dsize) {
-	char *sbuf;
-	int ssize = loadFile(&sbuf, file);
-	if (ssize < 0)
-		return -1;
-	decode_dat((BYTE *)sbuf, dbuf, ssize, dsize);
-	free(sbuf);
-	return 0;
 }
 
 void check_free() {
@@ -230,3 +186,4 @@ fileError:
 		free(data);
 	return -1;
 }
+

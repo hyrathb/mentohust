@@ -211,7 +211,6 @@ DWORD ltobl(DWORD x);
 #define LTOBL(x) (x)
 #endif
 
-int decodeConfig(const char *file, BYTE *dbuf, int dsize);
 int check_init(const char *dataFile);
 void V2_check(const BYTE *seed, char *final_str);
 void check_free();

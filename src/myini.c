@@ -22,23 +22,25 @@ static int findKey(const char *buf, const char *section, const char *key,
 	int *sectionStart, int *valueStart, unsigned long *valueSize);
 static int getSection(const char *buf, int inStart);
 
-long loadFile(char **buf, const char *fileName)
+char *loadFile(const char *fileName)
 {
 	FILE *fp = NULL;
 	long size = 0;
+	char *buf = NULL;
 	if ((fp=fopen(fileName, "rb")) == NULL)
-		return -1;
+		return NULL;
 	fseek(fp, 0, SEEK_END);
 	size = ftell(fp);
 	rewind(fp);
-	*buf = (char *)malloc(size+1);
-	(*buf)[size] = '\0';
-	if (fread(*buf, size, 1, fp) < 1) {
-		free(*buf);
-		size = -1;
+	buf = (char *)malloc(size+1);
+	buf[size] = '\0';
+	if (fread(buf, size, 1, fp) < 1)
+	{
+		free(buf);
+		buf = NULL;
 	}
 	fclose(fp);
-	return size;
+	return buf;
 }
 
 static void getLine(const char *buf, int inStart, int *lineStart, int *lineEnd)

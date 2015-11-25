@@ -17,7 +17,7 @@ extern "C"
 {
 #endif
 
-long loadFile(char **buf, const char *fileName);	/* 读取文件 */
+char *loadFile(const char *fileName);	/* 读取文件 */
 int getString(const char *buf, const char *section, const char *key,
 	const char *defaultValue, char *value, unsigned long size);	/* 读取字符串 */
 int getInt(const char *buf, const char *section, const char *key, int defaultValue);	/* 读取整数 */
