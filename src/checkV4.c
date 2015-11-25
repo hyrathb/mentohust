@@ -1011,7 +1011,6 @@ char *computeV4(const char *src, int len)
     uint64_t t2 = ((uint64_t)t)*0xcccccccd;
     uint64_t t3 = 5*(t2 >> 34);
     uint64_t t4 = t - t3;
-    printf("%llu\n", t4);
     switch(t4)
     {
         case 0:
@@ -1145,7 +1144,6 @@ char *computeV4(const char *src, int len)
         }
 
     }
-    printf("%llu\n", t4);
     whirlpool_ctx w;
     static unsigned char digest[100];
 
