@@ -7,12 +7,21 @@
 * 作	者：HustMoon@BYHH
 * 邮	箱：www.ehust@gmail.com
 */
+
+/*
+ * modified by shilianggoo@gmail.com 2014
+ * add NEED_LOGOUT, fix permission problems
+ * in some secure setuid shebang implemention
+ */
+
 #include "mystate.h"
 #include "myfunc.h"
 #include "dlfunc.h"
 #include "checkV4.h"
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #include <netinet/in.h>
 
 #define MAX_SEND_COUNT		3	/* 最大超时次数 */
@@ -22,6 +31,7 @@ const u_char *capBuf = NULL;	/* 抓到的包 */
 static u_char sendPacket[0x3E8];	/* 用来发送的包 */
 static int sendCount = 0;	/* 同一阶段发包计数 */
 
+extern char nic[];
 extern const u_char STANDARD_ADDR[];
 extern char userName[];
 extern unsigned startMode;
@@ -42,7 +52,7 @@ static void sendArpPacket();	/* ARP监视 */
 #endif
 
 static const char pad[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
+static pid_t cpid;
 static const unsigned char pkt1[503] = {
 /*0x00, 0x00, */0xff, 0xff, 0x37, 0x77, 0x7f, 0xff, /* ....7w.. */
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* ........ */
@@ -336,10 +346,26 @@ int restart()
 
 static int renewIP()
 {
+    int cpidstate;
 	setTimer(0);	/* 取消定时器 */
 	printf(">> 正在获取IP...\n");
-	system(dhcpScript);
-	printf(">> 操作结束。\n");
+	//system(dhcpScript);
+    if(cpid != 0)
+    {
+        // dhcp client has been started
+        printf("dhcpScript already run\n"); 
+    }
+    else
+    {
+        cpid = fork();
+        if(cpid == 0)
+            execlp(dhcpScript, dhcpScript, nic, NULL);
+        else if(cpid < 0)
+            printf("Fork dhcpScript failed, is your dhcpScript setted?\n");
+        else
+            wait(&cpidstate);
+    }
+    printf(">> 操作结束。\n");
 	dhcpMode += 3; /* 标记为已获取，123变为456，5不需再认证*/
 	if (fillHeader() == -1)
 		exit(EXIT_FAILURE);
@@ -501,10 +527,14 @@ static int sendLogoffPacket()
 		memset(sendPacket+0x12, 0xa5, 42);
 		return pcap_sendpacket(hPcap, sendPacket, 60);
 	}
+#ifdef NEED_LOGOUT
 	fillStartPacket();	/* 锐捷的退出包与Start包类似，不过其实不这样也是没问题的 */
 	fillEtherAddr(0x888E0102);
 	memcpy(sendPacket+0x12, fillBuf, fillSize);
 	return pcap_sendpacket(hPcap, sendPacket, 0x3E8);
+#else
+    return 0;
+#endif
 }
 
 static int waitEchoPacket()
