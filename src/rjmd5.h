@@ -1,53 +1,31 @@
-    #ifndef RJMD5_H
-    #define RJMD5_H
+/* md5.h */
+#ifndef MD5_HIDER
+#define MD5_HIDER
+#include "ustd.h"
 
-    typedef struct
-    {
-        unsigned int count[2];
-        unsigned int state[4];
-        unsigned char buffer[64];
-    }rjMD5_CTX;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+#define md5_block_size 64
+#define md5_hash_size  16
 
-    #define F(x,y,z) ((x & y) | (~x & z))
-    #define G(x,y,z) ((x & z) | (y & ~z))
-    #define H(x,y,z) (x^y^z)
-    #define I(x,y,z) (y ^ (x | ~z))
-    #define ROTATE_LEFT(x,n) ((x << n) | (x >> (32-n)))
-    #define FF(a,b,c,d,x,s,ac) \
-    { \
-        a += F(b,c,d) + x + ac; \
-        a = ROTATE_LEFT(a,s); \
-        a += b + 2;\
-    }
-    /*******************8
-        a += b;
-    }
-    modified
-    ******************/
-    #define GG(a,b,c,d,x,s,ac) \
-    { \
-        a += G(b,c,d) + x + ac; \
-        a = ROTATE_LEFT(a,s); \
-        a += b - 2; \
-    }
-    #define HH(a,b,c,d,x,s,ac) \
-    { \
-        a += H(b,c,d) + x + ac; \
-        a = ROTATE_LEFT(a,s); \
-        a += b - 1; \
-    }
-    #define II(a,b,c,d,x,s,ac) \
-    { \
-        a += I(b,c,d) + x + ac; \
-        a = ROTATE_LEFT(a,s); \
-        a += b + 1; \
-    }
-    void rjMD5Init(rjMD5_CTX *context);
-    void rjMD5Update(rjMD5_CTX *context,unsigned const char *input,unsigned int inputlen);
-    void rjMD5Final(rjMD5_CTX *context,unsigned char digest[16]);
-    void MD5Transform(unsigned int state[4],unsigned const char block[64]);
-    void MD5Encode(unsigned char *output,unsigned int *input,unsigned int len);
-    void MD5Decode(unsigned int *output,unsigned const char *input,unsigned int len);
+/* algorithm context */
+typedef struct md5_ctx
+{
+	unsigned message[md5_block_size / 4]; /* 512-bit buffer for leftovers */
+	uint64_t length;   /* number of processed bytes */
+	unsigned hash[4];  /* 128-bit algorithm internal hashing state */
+} md5_ctx;
 
-    #endif
+/* hash functions */
+
+void rhash_md5_init(md5_ctx *ctx);
+void rhash_md5_update(md5_ctx *ctx, const unsigned char* msg, size_t size);
+void rhash_md5_final(md5_ctx *ctx, unsigned char result[16]);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif /* __cplusplus */
+
+#endif /* MD5_HIDER */

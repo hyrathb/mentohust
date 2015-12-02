@@ -1011,16 +1011,17 @@ char *computeV4(const char *src, int len)
     uint64_t t2 = ((uint64_t)t)*0xcccccccd;
     uint64_t t3 = 5*(t2 >> 34);
     uint64_t t4 = t - t3;
+    printf("V4 type: %llu\n", t4);
     switch(t4)
     {
         case 0:
         {
             unsigned char mtmp[16];
-            rjMD5_CTX mctx;
+            md5_ctx mctx;
 
-            rjMD5Init(&mctx);
-            rjMD5Update(&mctx, array, 0x71c);
-            rjMD5Final(&mctx, mtmp);
+            rhash_md5_init(&mctx);
+            rhash_md5_update(&mctx, array, 0x71c);
+            rhash_md5_final(&mctx, mtmp);
             char tbuf[10];
             for (i=0; i<16; ++i)
             {
@@ -1036,9 +1037,9 @@ char *computeV4(const char *src, int len)
                 wpos += strlen(tbuf);
             }
 
-            rjMD5Init(&mctx);
-            rjMD5Update(&mctx, array_1, 0x7f3);
-            rjMD5Final(&mctx, mtmp);
+            rhash_md5_init(&mctx);
+            rhash_md5_update(&mctx, array_1, 0x7f3);
+            rhash_md5_final(&mctx, mtmp);
             for (i=0; i<16; ++i)
             {
                 sprintf(wtmp + wpos, "%02x", mtmp[i]);

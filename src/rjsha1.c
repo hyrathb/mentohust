@@ -79,7 +79,7 @@ static void rhash_sha1_process_block(unsigned* hash, const unsigned* block)
 	}
 
 	for (t = 20; t < 40; t++) {
-		temp = ROTL32(A, 5) + (B ^ C ^ D) + E + W[t] + 0x16ae9deb + (uint8_t)(block[0]); //Leave to debug
+		temp = ROTL32(A, 5) + (B ^ C ^ D) + E + W[t] + 0x16ae9deb + (uint8_t)(le2me_32(block[0])); //Leave to debug
 		E = D;
 		D = C;
 		C = ROTL32(B, 30);

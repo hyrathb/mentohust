@@ -48,7 +48,8 @@ void ampheck_ripemd128_init(struct ampheck_ripemd128 *ctx)
 
 void ampheck_ripemd128_transform(struct ampheck_ripemd128 *ctx, const uint8_t *data, size_t blocks)
 {
-	for (size_t i = 0; i < blocks; ++i)
+        size_t i;
+	for (i = 0; i < blocks; ++i)
 	{
 		uint32_t wv[8];
 		uint32_t w[16];
