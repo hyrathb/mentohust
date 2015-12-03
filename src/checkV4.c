@@ -1032,7 +1032,7 @@ char *computeV4(const char *src, int len)
 
             for (i=0; i<8; ++i)
             {
-                sprintf(tbuf, "%02x", s[2*i]);
+                sprintf(tbuf, "%02x", (char)(s[2*i]));
                 strcpy(wtmp + wpos, tbuf);
                 wpos += strlen(tbuf);
             }
@@ -1047,7 +1047,7 @@ char *computeV4(const char *src, int len)
             }
             for (i=0; i<8; ++i)
             {
-                sprintf(tbuf, "%02x", s[2*i+1]);
+                sprintf(tbuf, "%02x", (char)(s[2*i+1]));
                 strcpy(wtmp + wpos, tbuf);
                 wpos += strlen(tbuf);
             }
