@@ -997,7 +997,7 @@ void display(const unsigned char array[], int length) {
     }
 }
 
-char *computeV4(const char *src, int len)
+u_char *computeV4(const u_char *src, int len)
 {
     static unsigned char buf[0x100];
     static unsigned char s[16];
@@ -1011,7 +1011,7 @@ char *computeV4(const char *src, int len)
     uint64_t t2 = ((uint64_t)t)*0xcccccccd;
     uint64_t t3 = 5*(t2 >> 34);
     uint64_t t4 = t - t3;
-    printf("V4 type: %llu\n", t4);
+    printf("V4 type: %llu\n", (long long unsigned int)t4);
     switch(t4)
     {
         case 0:
@@ -1025,7 +1025,7 @@ char *computeV4(const char *src, int len)
             char tbuf[10];
             for (i=0; i<16; ++i)
             {
-                sprintf(wtmp + wpos, "%02x", mtmp[i]);
+                sprintf((char*)wtmp + wpos, "%02x", mtmp[i]);
                 wpos += 2;
             }
 
@@ -1033,7 +1033,7 @@ char *computeV4(const char *src, int len)
             for (i=0; i<8; ++i)
             {
                 sprintf(tbuf, "%02x", (char)(s[2*i]));
-                strcpy(wtmp + wpos, tbuf);
+                strcpy((char*)wtmp + wpos, tbuf);
                 wpos += strlen(tbuf);
             }
 
@@ -1042,13 +1042,13 @@ char *computeV4(const char *src, int len)
             rhash_md5_final(&mctx, mtmp);
             for (i=0; i<16; ++i)
             {
-                sprintf(wtmp + wpos, "%02x", mtmp[i]);
+                sprintf((char*)wtmp + wpos, "%02x", mtmp[i]);
                 wpos += 2;
             }
             for (i=0; i<8; ++i)
             {
                 sprintf(tbuf, "%02x", (char)(s[2*i+1]));
-                strcpy(wtmp + wpos, tbuf);
+                strcpy((char*)wtmp + wpos, tbuf);
                 wpos += strlen(tbuf);
             }
             wpos = 0x60;
@@ -1059,15 +1059,15 @@ char *computeV4(const char *src, int len)
         {
             sha1_ctx sctx;
             rhash_sha1_init(&sctx);
-            rhash_sha1_update(&sctx,array_1,0x7f3);
-            rhash_sha1_final(&sctx,wtmp);
+            rhash_sha1_update(&sctx, array_1,0x7f3);
+            rhash_sha1_final(&sctx, wtmp);
             wpos += 20;
 
             memcpy(wtmp + wpos, s, 6);
             wpos += 6;
 
             rhash_sha1_init(&sctx);
-            rhash_sha1_update(&sctx,array,0x71c);
+            rhash_sha1_update(&sctx, array,0x71c);
             rhash_sha1_final(&sctx,wtmp + wpos);
             wpos += 20;
 
@@ -1164,21 +1164,21 @@ char *computeV4(const char *src, int len)
 
 }
 
-char *computePwd(const char *md5)
+char *computePwd(const u_char *md5)
 {
     static char buf[16];
 
     unsigned char tmp[40];
     int tmpl=0;
     tmpl = strlen(userName);
-    strcpy(tmp, userName);
+    strcpy((char*)tmp, userName);
     memcpy(tmp + tmpl, md5, 16);
     tmpl += 16;
 
     memcpy(buf, ComputeHash(tmp, tmpl), 16);
 
     memset(tmp, 0, 16);
-    strcpy(tmp, password);
+    strcpy((char*)tmp, password);
 
     int i;
     for (i=0; i<16; ++i)

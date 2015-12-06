@@ -51,7 +51,7 @@ extern u_char gateMAC[];
 static void sendArpPacket();	/* ARP监视 */
 #endif
 
-static const char pad[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+static const u_char pad[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 static pid_t cpid;
 static const unsigned char pkt1[503] = {
 /*0x00, 0x00, */0xff, 0xff, 0x37, 0x77, 0x7f, 0xff, /* ....7w.. */
@@ -353,7 +353,7 @@ static int renewIP()
     if(cpid != 0)
     {
         // dhcp client has been started
-        printf("dhcpScript already run\n"); 
+        printf("dhcpScript already run\n");
     }
     else
     {
@@ -480,7 +480,7 @@ static int sendChallengePacket()
 		sendPacket[0x17] = 16;
 		memcpy(sendPacket+0x18, checkPass(capBuf[0x13], capBuf+0x18, capBuf[0x17]), 16);
 		memcpy(sendPacket+0x28, userName, nameLen);
-		
+
                 memcpy(sendPacket+0x28+nameLen, pkt3, sizeof(pkt3));
                 memcpy(sendPacket + 0x90 + nameLen, computePwd(capBuf+0x18), 0x10);
                 //memcpy(sendPacket + 0xa0 +nameLen, fillBuf + 0x68, fillSize-0x68);
