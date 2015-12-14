@@ -997,7 +997,7 @@ void display(const unsigned char array[], int length) {
     }
 }
 
-u_char *computeV4(const u_char *src, int len)
+unsigned char *computeV4(const unsigned char *src, int len)
 {
     static unsigned char buf[0x100];
     static unsigned char s[16];
@@ -1164,7 +1164,7 @@ u_char *computeV4(const u_char *src, int len)
 
 }
 
-char *computePwd(const u_char *md5)
+char *computePwd(const unsigned char *md5)
 {
     static char buf[16];
 
