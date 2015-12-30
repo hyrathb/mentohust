@@ -1000,10 +1000,10 @@ void display(const unsigned char array[], int length) {
 unsigned char *computeV4(const unsigned char *src, int len)
 {
     static unsigned char buf[0x100];
-    static unsigned char s[16];
+    static unsigned char s[20];
     memcpy(s, src, 16);
 
-    unsigned char wtmp[128];
+    unsigned char wtmp[160];
     int wpos = 0;
     int i;
 
@@ -1153,7 +1153,7 @@ unsigned char *computeV4(const unsigned char *src, int len)
     rhash_whirlpool_final(&w, digest);
 
 
-    char tbuf[2];
+    char tbuf[10];
     for (i = 0; i<64; ++i)
     {
         sprintf(tbuf, "%02x", digest[i]);
@@ -1166,7 +1166,7 @@ unsigned char *computeV4(const unsigned char *src, int len)
 
 char *computePwd(const unsigned char *md5)
 {
-    static char buf[16];
+    static char buf[20];
 
     unsigned char tmp[40];
     int tmpl=0;
