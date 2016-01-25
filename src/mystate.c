@@ -42,7 +42,7 @@ extern u_char localMAC[], destMAC[];
 extern unsigned timeout;
 extern unsigned echoInterval;
 extern unsigned restartWait;
-extern char dhcpScript[];
+extern char **dhcpArguements;
 extern pcap_t *hPcap;
 extern u_char *fillBuf;
 extern unsigned fillSize;
@@ -355,17 +355,28 @@ static int renewIP()
     if(cpid != 0)
     {
         // dhcp client has been started
-        printf("dhcpScript already run\n");
+        printf("dhcpScript already run.\n");
     }
     else
     {
-        cpid = fork();
-        if(cpid == 0)
-            execlp(dhcpScript, dhcpScript, nic, NULL);
-        else if(cpid < 0)
-            printf("Fork dhcpScript failed, is your dhcpScript setted?\n");
+        if(dhcpArguements == 0 || dhcpArguements[0] == 0)
+        {
+            printf("Mentohust[Error]: dhcpScript parser failed.\n");
+        }
         else
-            wait(&cpidstate);
+        {
+            cpid = fork();
+            if(cpid == 0)
+            {
+                execvp(dhcpArguements[0], dhcpArguements);
+                printf("Mentohust[Error]: Running dhcpScript failed.\n");
+                exit(-1);
+            }
+            else if(cpid < 0)
+                printf("Fork dhcpScript failed.\n");
+            else
+                wait(&cpidstate);
+        }
     }
     printf(_(">> 操作结束。\n"));
 	dhcpMode += 3; /* 标记为已获取，123变为456，5不需再认证*/
