@@ -1007,12 +1007,9 @@ unsigned char *computeV4(const unsigned char *src, int len)
     int wpos = 0;
     int i;
 
-    uint32_t t = (char)s[0] + (char)s[3];
-    uint64_t t2 = ((uint64_t)t)*0xcccccccd;
-    uint64_t t3 = 5*(t2 >> 34);
-    uint64_t t4 = t - t3;
-    printf("V4 type: %llu\n", (long long unsigned int)t4);
-    switch(t4)
+    uint32_t v4_check_type = ((signed char)s[0] + (signed char)s[3]) % 5u;
+    printf("V4 type: %d\n", v4_check_type);
+    switch(v4_check_type)
     {
         case 0:
         {
