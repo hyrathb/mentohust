@@ -51,6 +51,11 @@ AS_IF([test "x$enable_notify" = "xno"],
       [AC_DEFINE(NO_NOTIFY, [], [Define NO_NOTIFY to disable notification])],
       [AC_CHECK_LIB([dl], [dlsym])])
 
+AC_ARG_ENABLE([logout], [AC_HELP_STRING([ --disable-logout], [Don't logout when exiting])],
+              [], [enable_logout="yes"])
+AS_IF([test "x$enable_logout" = "xno"],
+      [AC_DEFINE(NO_LOGOUT, [], [Define NO_LOGOUT to disable sending exiting packet])])
+
 AS_IF([test -z "$enable_nls"], [enable_nls="yes"])
 
 GETTEXT_PACKAGE="$PACKAGE_NAME"

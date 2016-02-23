@@ -15,8 +15,6 @@
 #ifndef HUSTMOON_MYSTATE_H
 #define HUSTMOON_MYSTATE_H
 
-#define NEED_LOGOUT
-
 #define ID_DISCONNECT		0	/* 断开状态 */
 #define ID_START			1	/* 寻找服务器 */
 #define ID_IDENTITY			2	/* 发送用户名 */
