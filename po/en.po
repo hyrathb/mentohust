@@ -374,8 +374,8 @@ msgstr "** data file:\t%s\n"
 
 #: src/myconfig.c:519
 #, c-format
-msgid "** DHCP脚本:\t%s\n"
-msgstr "** DHCP script:\t%s\n"
+msgid "** DHCP脚本:\t"
+msgstr "** DHCP script:\t"
 
 #: src/myconfig.c:528
 #, c-format

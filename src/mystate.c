@@ -540,7 +540,7 @@ static int sendLogoffPacket()
 		memset(sendPacket+0x12, 0xa5, 42);
 		return pcap_sendpacket(hPcap, sendPacket, 60);
 	}
-#ifdef NEED_LOGOUT
+#ifndef NO_LOGOUT
 	fillStartPacket();	/* 锐捷的退出包与Start包类似，不过其实不这样也是没问题的 */
 	fillEtherAddr(0x888E0102);
 	memcpy(sendPacket+0x12, fillBuf, fillSize);
