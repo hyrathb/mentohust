@@ -523,7 +523,7 @@ static void printConfig()
         dhcpArguements = yash_args(dhcpScript);
         for(char **tmp = dhcpArguements; tmp != 0 && *tmp != 0; tmp++)
         {
-            puts(*tmp);
+            printf("%s ",*tmp);
         }
         putchar('\n');
     }
