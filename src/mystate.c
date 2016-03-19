@@ -351,33 +351,8 @@ static int renewIP()
     int cpidstate;
 	setTimer(0);	/* 取消定时器 */
 	printf(_(">> 正在获取IP...\n"));
-	//system(dhcpScript);
-    if(cpid != 0)
-    {
-        // dhcp client has been started
-        printf("dhcpScript already run.\n");
-    }
-    else
-    {
-        if(dhcpArguements == 0 || dhcpArguements[0] == 0)
-        {
-            printf("Mentohust[Error]: dhcpScript parser failed.\n");
-        }
-        else
-        {
-            cpid = fork();
-            if(cpid == 0)
-            {
-                execvp(dhcpArguements[0], dhcpArguements);
-                printf("Mentohust[Error]: Running dhcpScript failed.\n");
-                exit(-1);
-            }
-            else if(cpid < 0)
-                printf("Fork dhcpScript failed.\n");
-            else
-                wait(&cpidstate);
-        }
-    }
+    setreuid(0,0);
+	system(dhcpScript);
     printf(_(">> 操作结束。\n"));
 	dhcpMode += 3; /* 标记为已获取，123变为456，5不需再认证*/
 	if (fillHeader() == -1)
