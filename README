@@ -3,6 +3,7 @@
 
 所有hash都是从算法在rhash和ampheck借来魔改的……。
 
+建议Arch Linux用户安装AUR中的mentohust-git
 #使用方法
 
 #安装mentohust：建议Ubuntu用户使用Deb包安装，Fedora用户使用RPM包安装
