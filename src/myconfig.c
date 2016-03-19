@@ -518,7 +518,7 @@ static void printConfig()
 	if (dhcpMode != 0)
     {
 		printf(_("** DHCP脚本:\t"));
-        printf(dhcpScript);
+        printf("%s/n", dhcpScript);
     }
 }
 
