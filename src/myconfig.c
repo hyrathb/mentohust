@@ -27,7 +27,7 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 #include <sys/stat.h>
 #include <termios.h>
 
-#ifdef HAVE_GETOPT_LONG
+#ifndef NO_GETOPT_LONG
 #include <getopt.h>
 #endif
 
@@ -337,10 +337,10 @@ static int readFile(int *daemonMode)
 
 static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *daemonMode)
 {
-#ifdef HAVE_GETOPT_LONG
+#ifndef NO_GETOPT_LONG
     int opt = 0;
     int longIndex = 0;
-
+    unsigned ver[2]; /* -v buffer */
     static const char* shortOpts = "hk::wu:p:n:i:m:g:s:o:t:e:r:l:a:d:b:"
 #ifndef NO_NOTIFY
         "y:"
@@ -362,20 +362,21 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 	    { "heartbeat", required_argument, NULL, 'e' },
 	    { "wait-after-fail", required_argument, NULL, 'r' },
 	    { "max-fail", required_argument, NULL, 'l' },
-	    { "eap-broadcast", required_argument, NULL, 'a' },
-	    { "dhcp", required_argument, NULL, 'd' },
+	    { "eap-broadcast-addr", required_argument, NULL, 'a' },
+	    { "dhcp-type", required_argument, NULL, 'd' },
 	    { "daemonize", required_argument, NULL, 'b' },
 #ifndef NO_NOTIFY
 	    { "notify", required_argument, NULL, 'y' },
 #endif
 	    { "fake-supplicant-version", required_argument, NULL, 'v' },
-	    { "data-file", required_argument, NULL, 'f' },
+	    { "template-file", required_argument, NULL, 'f' },
 	    { "dhcp-script", required_argument, NULL, 'c' },
 	    { "decode-config", required_argument, NULL, 'q' },
 	    { NULL, no_argument, NULL, 0 }
     };
 
     opt = getopt_long(argc, argv, shortOpts, longOpts, &longIndex);
+#define COPY_ARG_TO(char_array) strncpy(char_array, optarg, sizeof(char_array) - 1);
     while (opt != -1) {
         switch (opt) {
             case 'h':
@@ -390,13 +391,13 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
                 *saveFlag = 1;
                 break;
             case 'u':
-                userName = optarg;
+                COPY_ARG_TO(userName);
                 break;
             case 'p':
-                password = optarg;
+                COPY_ARG_TO(password);
                 break;
             case 'n':
-                nic = optarg;
+                COPY_ARG_TO(nic);
                 break;
             case 'i':
                 ip = inet_addr(optarg);
@@ -440,7 +441,6 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
                 break;
 #endif
             case 'v':
-                unsigned ver[2];
                 if (sscanf(optarg, "%u.%u", ver, ver + 1) != EOF) {
                     if (ver[0] == 0) {
                         bufType = 0;
@@ -452,10 +452,10 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
                 }
                 break;
             case 'f':
-                dataFile = optarg;
+                COPY_ARG_TO(dataFile);
                 break;
             case 'c':
-                dhcpScript = optarg;
+                COPY_ARG_TO(dhcpScript);
                 break;
             case 'q':
                 printSuConfig(optarg);
@@ -463,6 +463,7 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
             default:
                 break;
         }
+        opt = getopt_long(argc, argv, shortOpts, longOpts, &longIndex);
     }
 #else
 	char *str, c;
