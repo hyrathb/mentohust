@@ -27,6 +27,10 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 #include <sys/stat.h>
 #include <termios.h>
 
+#ifdef HAVE_GETOPT_LONG
+#include <getopt.h>
+#endif
+
 #define ACCOUNT_SIZE		65	/* 用户名密码长度*/
 #define NIC_SIZE			16	/* 网卡名最大长度 */
 #define MAX_PATH			255	/* FILENAME_MAX */
@@ -333,6 +337,134 @@ static int readFile(int *daemonMode)
 
 static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *daemonMode)
 {
+#ifdef HAVE_GETOPT_LONG
+    int opt = 0;
+    int longIndex = 0;
+
+    static const char* shortOpts = "hk::wu:p:n:i:m:g:s:o:t:e:r:l:a:d:b:"
+#ifndef NO_NOTIFY
+        "y:"
+#endif
+        "v:f:c:q:";
+    static const struct option longOpts[] = {
+	    { "help", no_argument, NULL, 'h' },
+	    { "kill", optional_argument, NULL, 'k' },
+	    { "write", no_argument, NULL, 'w' },
+	    { "username", required_argument, NULL, 'u' },
+	    { "password", required_argument, NULL, 'p' },
+	    { "nic", required_argument, NULL, 'n' },
+	    { "ip", required_argument, NULL, 'i' },
+	    { "mask", required_argument, NULL, 'm' },
+	    { "gateway", required_argument, NULL, 'g' },
+	    { "dns", required_argument, NULL, 's' },
+	    { "ping-host", required_argument, NULL, 'o' },
+	    { "auth-timeout", required_argument, NULL, 't' },
+	    { "heartbeat", required_argument, NULL, 'e' },
+	    { "wait-after-fail", required_argument, NULL, 'r' },
+	    { "max-fail", required_argument, NULL, 'l' },
+	    { "eap-broadcast", required_argument, NULL, 'a' },
+	    { "dhcp", required_argument, NULL, 'd' },
+	    { "daemonize", required_argument, NULL, 'b' },
+#ifndef NO_NOTIFY
+	    { "notify", required_argument, NULL, 'y' },
+#endif
+	    { "fake-supplicant-version", required_argument, NULL, 'v' },
+	    { "data-file", required_argument, NULL, 'f' },
+	    { "dhcp-script", required_argument, NULL, 'c' },
+	    { "decode-config", required_argument, NULL, 'q' },
+	    { NULL, no_argument, NULL, 0 }
+    };
+
+    opt = getopt_long(argc, argv, shortOpts, longOpts, &longIndex);
+    while (opt != -1) {
+        switch (opt) {
+            case 'h':
+                showHelp(argv[0]); /* 调用本函数将退出程序 */
+            case 'k':
+                if (optarg == NULL)
+                    *exitFlag = 1; /* 结束其他实例并退出 */
+                else
+                    *exitFlag = 2; /* 结束其他实例，本实例继续运行 */
+                break;
+            case 'w':
+                *saveFlag = 1;
+                break;
+            case 'u':
+                userName = optarg;
+                break;
+            case 'p':
+                password = optarg;
+                break;
+            case 'n':
+                nic = optarg;
+                break;
+            case 'i':
+                ip = inet_addr(optarg);
+                break;
+            case 'm':
+                mask = inet_addr(optarg);
+                break;
+            case 'g':
+                gateway = inet_addr(optarg);
+                break;
+            case 's':
+                dns = inet_addr(optarg);
+                break;
+            case 'o':
+                pingHost = inet_addr(optarg);
+                break;
+            case 't':
+                timeout = atoi(optarg); /* 此处不设置限制，但原始的代码中有最大99秒的限制 */
+                break;
+            case 'e':
+                echoInterval = atoi(optarg); /* 同上 */
+                break;
+            case 'r':
+                restartWait = atoi(optarg); /* 同上 */
+                break;
+            case 'l':
+                maxFail = atoi(optarg);
+                break;
+            case 'a':
+                startMode = atoi(optarg) % 3;
+                break;
+            case 'd':
+                dhcpMode = atoi(optarg) % 4;
+                break;
+            case 'b':
+                *daemonMode = atoi(optarg) % 4;
+                break;
+#ifndef NO_NOTIFY
+            case 'y':
+                showNotify = atoi(optarg) % 21; /* 此处限制不知原因，程序中并未进行大小判断，保留 */
+                break;
+#endif
+            case 'v':
+                unsigned ver[2];
+                if (sscanf(optarg, "%u.%u", ver, ver + 1) != EOF) {
+                    if (ver[0] == 0) {
+                        bufType = 0;
+                    } else {
+                        version[0] = ver[0];
+                        version[1] = ver[1];
+                        bufType = 1;
+                    }
+                }
+                break;
+            case 'f':
+                dataFile = optarg;
+                break;
+            case 'c':
+                dhcpScript = optarg;
+                break;
+            case 'q':
+                printSuConfig(optarg);
+                exit(EXIT_SUCCESS);
+            default:
+                break;
+        }
+    }
+#else
 	char *str, c;
 	int i;
 	for (i=1; i<argc; i++)
@@ -409,6 +541,7 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 				maxFail = atoi(str+2);
 		}
 	}
+#endif
 }
 
 static void showHelp(const char *fileName)
