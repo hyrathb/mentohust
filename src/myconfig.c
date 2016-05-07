@@ -27,6 +27,10 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 #include <sys/stat.h>
 #include <termios.h>
 
+#ifndef NO_GETOPT_LONG
+#include <getopt.h>
+#endif
+
 #define ACCOUNT_SIZE		65	/* 用户名密码长度*/
 #define NIC_SIZE			16	/* 网卡名最大长度 */
 #define MAX_PATH			255	/* FILENAME_MAX */
@@ -333,6 +337,135 @@ static int readFile(int *daemonMode)
 
 static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *daemonMode)
 {
+#ifndef NO_GETOPT_LONG
+    int opt = 0;
+    int longIndex = 0;
+    unsigned ver[2]; /* -v buffer */
+    static const char* shortOpts = "hk::wu:p:n:i:m:g:s:o:t:e:r:l:a:d:b:"
+#ifndef NO_NOTIFY
+        "y:"
+#endif
+        "v:f:c:q:";
+    static const struct option longOpts[] = {
+	    { "help", no_argument, NULL, 'h' },
+	    { "kill", optional_argument, NULL, 'k' },
+	    { "write", no_argument, NULL, 'w' },
+	    { "username", required_argument, NULL, 'u' },
+	    { "password", required_argument, NULL, 'p' },
+	    { "nic", required_argument, NULL, 'n' },
+	    { "ip", required_argument, NULL, 'i' },
+	    { "mask", required_argument, NULL, 'm' },
+	    { "gateway", required_argument, NULL, 'g' },
+	    { "dns", required_argument, NULL, 's' },
+	    { "ping-host", required_argument, NULL, 'o' },
+	    { "auth-timeout", required_argument, NULL, 't' },
+	    { "heartbeat", required_argument, NULL, 'e' },
+	    { "wait-after-fail", required_argument, NULL, 'r' },
+	    { "max-fail", required_argument, NULL, 'l' },
+	    { "eap-bcast-addr", required_argument, NULL, 'a' },
+	    { "dhcp-type", required_argument, NULL, 'd' },
+	    { "daemonize", required_argument, NULL, 'b' },
+#ifndef NO_NOTIFY
+	    { "notify", required_argument, NULL, 'y' },
+#endif
+	    { "fake-supplicant-version", required_argument, NULL, 'v' },
+	    { "template-file", required_argument, NULL, 'f' },
+	    { "dhcp-script", required_argument, NULL, 'c' },
+	    { "decode-config", required_argument, NULL, 'q' },
+	    { NULL, no_argument, NULL, 0 }
+    };
+
+    opt = getopt_long(argc, argv, shortOpts, longOpts, &longIndex);
+#define COPY_ARG_TO(char_array) strncpy(char_array, optarg, sizeof(char_array) - 1);
+    while (opt != -1) {
+        switch (opt) {
+            case 'h':
+                showHelp(argv[0]); /* 调用本函数将退出程序 */
+            case 'k':
+                if (optarg == NULL)
+                    *exitFlag = 1; /* 结束其他实例并退出 */
+                else
+                    *exitFlag = 2; /* 结束其他实例，本实例继续运行 */
+                break;
+            case 'w':
+                *saveFlag = 1;
+                break;
+            case 'u':
+                COPY_ARG_TO(userName);
+                break;
+            case 'p':
+                COPY_ARG_TO(password);
+                break;
+            case 'n':
+                COPY_ARG_TO(nic);
+                break;
+            case 'i':
+                ip = inet_addr(optarg);
+                break;
+            case 'm':
+                mask = inet_addr(optarg);
+                break;
+            case 'g':
+                gateway = inet_addr(optarg);
+                break;
+            case 's':
+                dns = inet_addr(optarg);
+                break;
+            case 'o':
+                pingHost = inet_addr(optarg);
+                break;
+            case 't':
+                timeout = atoi(optarg); /* 此处不设置限制，但原始的代码中有最大99秒的限制 */
+                break;
+            case 'e':
+                echoInterval = atoi(optarg); /* 同上 */
+                break;
+            case 'r':
+                restartWait = atoi(optarg); /* 同上 */
+                break;
+            case 'l':
+                maxFail = atoi(optarg);
+                break;
+            case 'a':
+                startMode = atoi(optarg) % 3;
+                break;
+            case 'd':
+                dhcpMode = atoi(optarg) % 4;
+                break;
+            case 'b':
+                *daemonMode = atoi(optarg) % 4;
+                break;
+#ifndef NO_NOTIFY
+            case 'y':
+                showNotify = atoi(optarg) % 21; /* 此处限制不知原因，程序中并未进行大小判断，保留 */
+                break;
+#endif
+            case 'v':
+                if (sscanf(optarg, "%u.%u", ver, ver + 1) != EOF) {
+                    if (ver[0] == 0) {
+                        bufType = 0;
+                    } else {
+                        version[0] = ver[0];
+                        version[1] = ver[1];
+                        bufType = 1;
+                    }
+                }
+                break;
+            case 'f':
+                COPY_ARG_TO(dataFile);
+                break;
+            case 'c':
+                COPY_ARG_TO(dhcpScript);
+                break;
+            case 'q':
+                printSuConfig(optarg);
+                exit(EXIT_SUCCESS);
+            default:
+                break;
+        }
+        opt = getopt_long(argc, argv, shortOpts, longOpts, &longIndex);
+    }
+#else
 	char *str, c;
 	int i;
 	for (i=1; i<argc; i++)
@@ -409,38 +542,108 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 				maxFail = atoi(str+2);
 		}
 	}
+#endif
 }
 
 static void showHelp(const char *fileName)
 {
 	char *helpString =
-		_("用法:\t%s [-选项][参数]\n"
-		"选项:\t-h 显示本帮助信息\n"
+		_("用法:\t%s [-选项][参数] 或 [-选项] [参数] 或 [--长选项] [参数]\n选项:"
+#ifndef NO_GETOPT_LONG
+        "\t--help"
+#endif
+		"\t-h 显示本帮助信息\n"
+#ifndef NO_GETOPT_LONG
+        "\t--kill"
+#endif
 		"\t-k -k(退出程序) 其他(重启程序)\n"
+#ifndef NO_GETOPT_LONG
+        "\t--write"
+#endif
 		"\t-w 保存参数到配置文件\n"
+#ifndef NO_GETOPT_LONG
+        "\t--username"
+#endif
 		"\t-u 用户名\n"
+#ifndef NO_GETOPT_LONG
+        "\t--password"
+#endif
 		"\t-p 密码\n"
+#ifndef NO_GETOPT_LONG
+        "\t--nic"
+#endif
 		"\t-n 网卡名\n"
+#ifndef NO_GETOPT_LONG
+        "\t--ip"
+#endif
 		"\t-i IP[默认本机IP]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--mask"
+#endif
 		"\t-m 子网掩码[默认本机掩码]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--gateway"
+#endif
 		"\t-g 网关[默认0.0.0.0]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--dns"
+#endif
 		"\t-s DNS[默认0.0.0.0]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--ping-host"
+#endif
 		"\t-o Ping主机[默认0.0.0.0，表示关闭该功能]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--auth-timeout"
+#endif
 		"\t-t 认证超时(秒)[默认8]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--heartbeat"
+#endif
 		"\t-e 心跳间隔(秒)[默认30]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--wait-after-fail"
+#endif
 		"\t-r 失败等待(秒)[默认15]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--max-fail"
+#endif
 		"\t-l 允许失败次数[0表示无限制，默认8]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--eap-bcast-addr"
+#endif
 		"\t-a 组播地址: 0(标准) 1(锐捷) 2(赛尔) [默认0]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--dhcp-type"
+#endif
 		"\t-d DHCP方式: 0(不使用) 1(二次认证) 2(认证后) 3(认证前) [默认0]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--daemonize"
+#endif
 		"\t-b 是否后台运行: 0(否) 1(是，关闭输出) 2(是，保留输出) 3(是，输出到文件) [默认0]\n"
 #ifndef NO_NOTIFY
+#ifndef NO_GETOPT_LONG
+        "\t--notify"
+#endif
 		"\t-y 是否显示通知: 0(否) 1~20(是) [默认5]\n"
 #endif
+#ifndef NO_GETOPT_LONG
+        "\t--fake-supplicant-version"
+#endif
 		"\t-v 客户端版本号[默认0.00表示兼容xrgsu]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--template-file"
+#endif
 		"\t-f 自定义数据文件[默认不使用]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--dhcp-script"
+#endif
 		"\t-c DHCP脚本[默认dhclient]\n"
+#ifndef NO_GETOPT_LONG
+        "\t--decode-config"
+#endif
 		"\t-q 显示SuConfig.dat的内容(如-q/path/SuConfig.dat)\n"
-		"例如:\t%s -uusername -ppassword -neth0 -i192.168.0.1 -m255.255.255.0 -g0.0.0.0 -s0.0.0.0 -o0.0.0.0 -t8 -e30 -r15 -a0 -d1 -b0 -v4.10 -fdefault.mpf -cdhclient\n"
+		"例如:\t%s -u username -p password -n eth0 -i 192.168.0.1 -m 255.255.255.0 -g 0.0.0.0 -s 0.0.0.0 -o 0.0.0.0 -t 8 -e 30 -r 15 -a 0 -d 1 -b 0 -v 4.10 -f default.mpf -c dhclient\n"
 		"注意：使用时请确保是以root权限运行！\n\n");
 	printf(helpString, fileName, fileName);
 	//cancel the registered funciton:atexit(exit_handle)

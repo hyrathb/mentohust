@@ -58,6 +58,11 @@ AS_IF([test "x$enable_logout" = "xno"],
 
 AS_IF([test -z "$enable_nls"], [enable_nls="yes"])
 
+AC_ARG_ENABLE([getopt-long], [AC_HELP_STRING([ --disable-getopt-long], [Don't use long options (and getopt_log())])],
+              [], [enable_getopt_long="yes"])
+AS_IF([test "x$enable_getopt_long" = "xno"],
+      [AC_DEFINE(NO_GETOPT_LONG, [], [Define NO_ETOPT_LONG to disable using of getopt_long() to parse options])])
+
 GETTEXT_PACKAGE="$PACKAGE_NAME"
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Package name for gettext.])
@@ -75,5 +80,5 @@ AC_CHECK_FUNCS([atexit memmove memset socket strrchr setlocale])
 
 AC_CONFIG_FILES([Makefile src/Makefile po/Makefile.in mentohust.spec])
 
-AC_MSG_RESULT([config result: host($host_os) pcap($with_pcap) notify($enable_notify) encode($enable_encodepass) arp($enable_arp) nls($enable_nls)])
+AC_MSG_RESULT([config result: host($host_os) pcap($with_pcap) notify($enable_notify) encode($enable_encodepass) arp($enable_arp) nls($enable_nls) getopt_long($enable_getopt_long)])
 AC_OUTPUT
