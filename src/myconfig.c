@@ -33,6 +33,7 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 
 #define ACCOUNT_SIZE		65	/* 用户名密码长度*/
 #define NIC_SIZE			16	/* 网卡名最大长度 */
+#define SERVICE_SIZE		127	/* 服务名最大长度 */
 #define MAX_PATH			255	/* FILENAME_MAX */
 #define D_TIMEOUT			8	/* 默认超时间隔 */
 #define D_ECHOINTERVAL		30	/* 默认心跳间隔 */
@@ -41,6 +42,7 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 #define D_DHCPMODE			0	/* 默认DHCP模式 */
 #define D_DAEMONMODE		0	/* 默认daemon模式 */
 #define D_MAXFAIL			8	/* 默认允许失败次数 */
+#define D_SERVICENAME		"internet"	/* 默认要登录的服务名 */
 
 #define ECHOFLAGS (ECHO|ECHOE|ECHOK|ECHONL)    /* 控制台输入密码时的模式*/
 
@@ -66,6 +68,7 @@ char password[ACCOUNT_SIZE] = "";	/* 密码 */
 char nic[NIC_SIZE] = "";	/* 网卡名 */
 char dataFile[MAX_PATH] = "";	/* 数据文件 */
 char dhcpScript[MAX_PATH] = "";	/* DHCP脚本 */
+char serviceName[SERVICE_SIZE] = ""; /* 需要登陆到的服务名 */
 u_int32_t ip = 0;	/* 本机IP */
 u_int32_t mask = 0;	/* 子网掩码 */
 u_int32_t gateway = 0;	/* 网关 */
@@ -208,6 +211,7 @@ void initConfig(int argc, char **argv)
 	int saveFlag = 0;	/* 是否需要保存参数 */
 	int exitFlag = 0;	/* 0Nothing 1退出 2重启 */
 	int daemonMode = D_DAEMONMODE;	/* 是否后台运行 */
+	void customizeServiceName(char* service); /* myconfig.c中用于更改服务名的函数 */
 
 	printf(_("\n欢迎使用MentoHUST\t版本: %s\n"
 			"Copyright (C) 2009-2010 HustMoon Studio\n"
@@ -264,6 +268,9 @@ void initConfig(int argc, char **argv)
 	}
 	if (dhcpScript[0] == '\0')	/* 未填写DHCP脚本？ */
 		strcpy(dhcpScript, D_DHCPSCRIPT);
+	if (serviceName[0] == '\0') /* 未填写服务名？ */
+		strcpy(serviceName, D_SERVICENAME);
+	customizeServiceName(serviceName);
 	newBuffer();
 	printConfig();
 	if (fillHeader()==-1 || openPcap()==-1) {	/* 获取IP、MAC，打开网卡 */
@@ -303,6 +310,7 @@ static int readFile(int *daemonMode)
 	getString(buf, "MentoHUST", "Datafile", "", dataFile, sizeof(dataFile));
 	getString(buf, "MentoHUST", "DhcpScript", "", dhcpScript, sizeof(dhcpScript));
 	getString(buf, "MentoHUST", "Version", "", tmp, sizeof(tmp));
+	getString(buf, "MentoHUST", "ServiceName", D_SERVICENAME, serviceName, sizeof(serviceName));
 	if (strlen(tmp) >= 3) {
 		unsigned ver[2];
 		if (sscanf(tmp, "%u.%u", ver, ver+1)!=EOF && ver[0]!=0) {
@@ -372,6 +380,7 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 	    { "template-file", required_argument, NULL, 'f' },
 	    { "dhcp-script", required_argument, NULL, 'c' },
 	    { "decode-config", required_argument, NULL, 'q' },
+	    { "service", required_argument, NULL, 0},
 	    { NULL, no_argument, NULL, 0 }
     };
 
@@ -460,6 +469,12 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
             case 'q':
                 printSuConfig(optarg);
                 exit(EXIT_SUCCESS);
+            case 0: /* 超出26个字母的选项，没有短选项与其对应 */
+#define IF_ARG(arg_name) (strcmp(longOpts[longIndex].name, arg_name) == 0)
+                if (IF_ARG("service")) {
+                    COPY_ARG_TO(serviceName);
+                }
+                break;
             default:
                 break;
         }
@@ -643,6 +658,10 @@ static void showHelp(const char *fileName)
         "\t--decode-config"
 #endif
 		"\t-q 显示SuConfig.dat的内容(如-q/path/SuConfig.dat)\n"
+#ifndef NO_GETOPT_LONG
+		/* 从这里开始就是必须使用长选项的参数了 */
+		"\t--service 要登陆到的服务名 [默认internet]\n"
+#endif
 		"例如:\t%s -u username -p password -n eth0 -i 192.168.0.1 -m 255.255.255.0 -g 0.0.0.0 -s 0.0.0.0 -o 0.0.0.0 -t 8 -e 30 -r 15 -a 0 -d 1 -b 0 -v 4.10 -f default.mpf -c dhclient\n"
 		"注意：使用时请确保是以root权限运行！\n\n");
 	printf(helpString, fileName, fileName);
@@ -699,6 +718,7 @@ static void printConfig()
 	printf(_("** 用户名:\t%s\n"), userName);
 	/* printf("** 密码:\t%s\n", password); */
 	printf(_("** 网卡: \t%s\n"), nic);
+	printf(_("** 服务名:\t%s\n"), serviceName);
 	if (gateway)
 		printf(_("** 网关地址:\t%s\n"), formatIP(gateway));
 	if (dns)

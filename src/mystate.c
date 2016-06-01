@@ -256,6 +256,10 @@ static const unsigned char pkt3[519] = {
 0x00                                            /* . */
 };
 
+static unsigned char* pkt_start;
+static unsigned char* pkt_identity;
+static unsigned char* pkt_md5;
+
 static void setTimer(unsigned interval);	/* 设置定时器 */
 static int renewIP();	/* 更新IP */
 static void fillEtherAddr(u_int32_t protocol);  /* 填充MAC地址和协议 */
@@ -274,6 +278,33 @@ static void setTimer(unsigned interval) /* 设置定时器 */
 	timer.it_interval.tv_sec = interval;
 	timer.it_interval.tv_usec = 0;
 	setitimer(ITIMER_REAL, &timer, NULL);
+}
+
+void customizeServiceName(char* service)
+{
+	if (strncmp(service, "internet", 8) != 0) {
+		int serviceNameLen = strnlen(service, 128);
+
+		pkt_start = (unsigned char*)malloc(sizeof(pkt1));
+		pkt_identity = (unsigned char*)malloc(sizeof(pkt2));
+		pkt_md5 = (unsigned char*)malloc(sizeof(pkt3));
+
+		memmove(pkt_start, pkt1, sizeof(pkt1));
+		memmove(pkt_identity, pkt2, sizeof(pkt2));
+		memmove(pkt_md5, pkt3, sizeof(pkt3));
+
+		memset(pkt_start + 360, 0, 8);
+		memset(pkt_identity + 343, 0, 8);
+		memset(pkt_md5 + 360, 0, 8);
+
+		memmove(pkt_start + 360, service, serviceNameLen);
+		memmove(pkt_identity + 343, service, serviceNameLen);
+		memmove(pkt_md5 + 360, service, serviceNameLen);
+	} else {
+		pkt_start = pkt1;
+		pkt_identity = pkt2;
+		pkt_md5 = pkt3;
+	}
 }
 
 int switchState(int type)
@@ -390,8 +421,8 @@ static int sendStartPacket()
 		printf(_(">> 寻找服务器...\n"));
 		//fillStartPacket();
 		fillEtherAddr(0x888E0101);
-		memcpy(sendPacket + 0x12, pkt1, sizeof(pkt1));
-                memcpy(sendPacket + 0xe2, computeV4(pad, 16), 0x80);
+		memcpy(sendPacket + 0x12, pkt_start, sizeof(pkt1));
+		memcpy(sendPacket + 0xe2, computeV4(pad, 16), 0x80);
 		setTimer(timeout);
 	}
 	return pcap_sendpacket(hPcap, sendPacket, 521);
@@ -428,8 +459,8 @@ static int sendIdentityPacket()
 		sendPacket[0x13] = capBuf[0x13];
 		sendPacket[0x16] = 0x01;
 		memcpy(sendPacket+0x17, userName, nameLen);
-		memcpy(sendPacket+0x17+nameLen, pkt2, sizeof(pkt2));
-                memcpy(sendPacket + 0xe7 + nameLen, computeV4(pad, 16), 0x80);
+		memcpy(sendPacket+0x17+nameLen, pkt_identity, sizeof(pkt2));
+		memcpy(sendPacket + 0xe7 + nameLen, computeV4(pad, 16), 0x80);
 		setTimer(timeout);
 	}
 	return pcap_sendpacket(hPcap, sendPacket, 536);
@@ -468,11 +499,11 @@ static int sendChallengePacket()
 		memcpy(sendPacket+0x18, checkPass(capBuf[0x13], capBuf+0x18, capBuf[0x17]), 16);
 		memcpy(sendPacket+0x28, userName, nameLen);
 
-                memcpy(sendPacket+0x28+nameLen, pkt3, sizeof(pkt3));
-                memcpy(sendPacket + 0x90 + nameLen, computePwd(capBuf+0x18), 0x10);
-                //memcpy(sendPacket + 0xa0 +nameLen, fillBuf + 0x68, fillSize-0x68);
-                memcpy(sendPacket + 0x108 + nameLen, computeV4(capBuf+0x18, capBuf[0x17]), 0x80);
-                //sendPacket[0x77] = 0xc7;
+		memcpy(sendPacket+0x28+nameLen, pkt_md5, sizeof(pkt3));
+		memcpy(sendPacket + 0x90 + nameLen, computePwd(capBuf+0x18), 0x10);
+		//memcpy(sendPacket + 0xa0 +nameLen, fillBuf + 0x68, fillSize-0x68);
+		memcpy(sendPacket + 0x108 + nameLen, computeV4(capBuf+0x18, capBuf[0x17]), 0x80);
+		//sendPacket[0x77] = 0xc7;
 		setTimer(timeout);
 	}
 	return pcap_sendpacket(hPcap, sendPacket, 569);
@@ -520,7 +551,7 @@ static int sendLogoffPacket()
 	memcpy(sendPacket+0x12, fillBuf, fillSize);
 	return pcap_sendpacket(hPcap, sendPacket, 0x3E8);
 #else
-    return 0;
+	return 0;
 #endif
 }
 
