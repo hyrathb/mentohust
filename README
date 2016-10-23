@@ -1,3 +1,5 @@
+现在updateing实现了一个加载支持修改数据包内容的EAPOL认证客户端并将本工程的认证算法做成了插件，更加容易适配各个学校，建议大家尝试https://github.com/updateing/minieap
+
 完全没怎么看原来的代码，瞎改的。
 加入了V4支持。具体算法看checkV4.c
 
