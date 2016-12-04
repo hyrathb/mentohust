@@ -293,12 +293,12 @@ void customizeServiceName(char* service)
 		memmove(pkt_identity, pkt2, sizeof(pkt2));
 		memmove(pkt_md5, pkt3, sizeof(pkt3));
 
-		memset(pkt_start + 360, 0, 8);
-		memset(pkt_identity + 343, 0, 8);
+		memset(pkt_start + 344, 0, 8);
+		memset(pkt_identity + 344, 0, 8);
 		memset(pkt_md5 + 360, 0, 8);
 
-		memmove(pkt_start + 360, service, serviceNameLen);
-		memmove(pkt_identity + 343, service, serviceNameLen);
+		memmove(pkt_start + 344, service, serviceNameLen);
+		memmove(pkt_identity + 344, service, serviceNameLen);
 		memmove(pkt_md5 + 360, service, serviceNameLen);
 	} else {
 		pkt_start = pkt1;
