@@ -812,6 +812,7 @@ static void saveConfig(int daemonMode)
 	setString(&buf, "MentoHUST", "Password", pass);
 #endif
 	setString(&buf, "MentoHUST", "Username", userName);
+	setString(&buf, "MentoHUST", "ServiceName", serviceName);
 	if (saveFile(buf, CFG_FILE) != 0)
 		printf(_("!! 保存认证参数到%s失败！\n"), CFG_FILE);
 	else
